@@ -97,17 +97,148 @@ rule fetch_fastq:
         """
 
 rule config_yml:
-    input: "00fastq/samples.yml"
+    input: "00fastq/samples.yml", "00ref/ref.yml"
     output: "00setup/config.yml"
+    shell:
+        """
+        echo "container: 00config/rnaseq.img" > {output}
+        echo "wrapper: rnaseq" >> {output}
+        cat {input} >> {output}
+        """
+
+
+###
+### reference data
+###
+
+ENSEMBL_RELEASE = 91
+ENSEMBL_URL = "ftp://ftp.ensembl.org/pub/release-{}".format(ENSEMBL_RELEASE)
+
+genome_build = "R64-1-1"
+
+rule all:
+    input: "00ref/R64-1-1.fa", 
+           "00ref/hisat_index/R64-1-1", 
+           "00ref/R64-1-1.cdna_nc.fa", 
+           "00ref/R64-1-1.genes.gtf",
+           "00ref/ref.yml",
+           "00ref/R64-1-1.tran2gene.tsv"
+
+rule fetch_genome:
+    output: "00ref/R64-1-1.fa"
+    shell:
+        """
+        wget {ENSEMBL_URL}/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa.gz
+        gunzip Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa.gz
+        mv Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa {output}
+        """
+
+rule fetch_transcriptome:
+    output: "00ref/R64-1-1.cdna_nc.fa"
+    shell:
+        """
+        wget {ENSEMBL_URL}/fasta/saccharomyces_cerevisiae/cdna/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa.gz
+        wget {ENSEMBL_URL}/fasta/saccharomyces_cerevisiae/ncrna/Saccharomyces_cerevisiae.R64-1-1.ncrna.fa.gz
+        gunzip Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa.gz
+        gunzip Saccharomyces_cerevisiae.R64-1-1.ncrna.fa.gz
+        cat Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa \
+            Saccharomyces_cerevisiae.R64-1-1.ncrna.fa \
+              | awk '/^>/ {{NF=1}} {{print}}' > {output}
+        rm Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa \
+           Saccharomyces_cerevisiae.R64-1-1.ncrna.fa
+        """
+
+rule fetch_gtf:
+    output: "00ref/R64-1-1.genes.gtf"
+    shell:
+        """
+        wget "{ENSEMBL_URL}/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.88.gtf.gz"
+        gunzip Saccharomyces_cerevisiae.R64-1-1.88.gtf.gz
+        mv Saccharomyces_cerevisiae.R64-1-1.88.gtf {output}
+        """
+
+rule gtf2bed12:
+    input: "00ref/R64-1-1.genes.gtf"
+    output: "00ref/R64-1-1.genes.bed12"
     run:
-        with open(output[0], "w") as ofh:
-            ofh.write("""container: 00config/rnaseq.img
-wrapper: rnaseq
-{samples}
-reference:
-  ensembl_ver: 88
-  genome_build: R64-1-1
-  hisat_index: 00ref/hisat_index/R64-1-1
-  genome_file: 00ref/R64-1-1.fa
-  cdna_file: 00ref/R64-1-1.cdna_nc.fa
-""".format(samples=open(input[0]).read().strip()))
+        transcripts = {}
+        i = 0
+        for line in open(input[0]):
+            if line.startswith('#'):
+                continue
+            chrom, _, feat, s, e, score, strand, _, attr = line.split('\t')
+            if feat not in ('transcript', 'exon'):
+                continue
+            s = int(s) - 1
+            e = int(e)
+            assert s < e
+            tid = None
+            for a in attr.split(';'):
+                if a.strip().startswith('transcript_id'):
+                    tid = a.split('"')[1]
+                    break
+            if tid is None:
+                raise ValueError
+            if feat == 'transcript':
+                i += 1
+                transcripts[tid] = {'c': chrom, 's':s, 'e':e, 
+                        'strand': strand, 'exons':[], 'tid': tid, 'i': i}
+            else:
+                transcripts[tid]['exons'].append((s, e))
+        with open(output[0], "w") as of:
+            for tid, t in sorted(transcripts.items(), key = lambda x: x[1]['i']):
+                of.write("{c}\t{s}\t{e}\t{tid}\t0\t{strand}".format(**t))
+                of.write("\t{s}\t{e}\t0,0,0\t{en}".format(en=len(t['exons']), **t))
+                exons = sorted(t['exons'])
+                of.write("\t{bsz}\t{bs}\n".format(bsz=",".join(str(e-s) for s,e in exons),
+                    bs=",".join(str(s) for s,_ in exons)))
+
+rule make_transcript_gene_map:
+    input: "00ref/R64-1-1.genes.gtf"
+    output: "00ref/R64-1-1.tran2gene.tsv"
+    threads: 1
+    run:
+        transcripts = []
+        for line in open(input[0]):
+            if line.startswith('#'):
+                continue
+            chrom, _, feat, s, e, score, strand, _, attr = line.split('\t')
+            if feat != 'transcript':
+                continue
+            tid = None
+            gid = None
+            for a in attr.split(';'):
+                if a.strip().startswith('transcript_id'):
+                    tid = a.split('"')[1]
+                if a.strip().startswith('gene_id'):
+                    gid = a.split('"')[1]
+            if tid is None or gid is None:
+                raise ValueError
+            transcripts.append((tid, gid))
+        with open(output[0], "w") as of:
+            for tid, gid in transcripts:
+                of.write("{}\t{}\n".format(tid, gid))
+
+
+rule ref_yaml:
+    output: "00ref/ref.yml"
+    shell:
+        """
+        echo "reference:" > {output}
+        echo "  ensembl_ver: {ENSEMBL_RELEASE}" >> {output}
+        echo "  genome_build: R64-1-1" >> {output}
+        echo "  genome_file: R64-1-1.fa" >> {output}
+        echo "  cdna_file: R64-1-1.cdna.fa" >> {output}
+        """
+
+
+rule make_hisat_index:
+    input:  "00ref/R64-1-1.fa"
+    output: idxf1 = "00ref/hisat_index/R64-1-1.1.ht2", 
+            name = "00ref/hisat_index/R64-1-1"
+    threads: 2
+    shell:
+        """
+        ../rnaseq hisat2-build -p {threads} {input} {output.name} \
+                && touch {output.name}
+        """
