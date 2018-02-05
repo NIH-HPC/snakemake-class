@@ -149,8 +149,8 @@ rule fetch_gtf:
     shell:
         """
         wget "{ENSEMBL_URL}/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.{ENSEMBL_RELEASE}.gtf.gz"
-        gunzip Saccharomyces_cerevisiae.R64-1-1.88.gtf.gz
-        mv Saccharomyces_cerevisiae.R64-1-1.88.gtf {output}
+        gunzip Saccharomyces_cerevisiae.R64-1-1.{ENSEMBL_RELEASE}.gtf.gz
+        mv Saccharomyces_cerevisiae.R64-1-1.{ENSEMBL_RELEASE}.gtf {output}
         """
 
 rule gtf2bed12:
