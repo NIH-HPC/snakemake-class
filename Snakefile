@@ -1,14 +1,23 @@
 # vim: set ft=python:
 
+# Samples from https://www.ebi.ac.uk/ena/data/view/PRJEB5348
+# to use for this example
 SAMPLES = ["ERR458495",
-        "ERR458502",
-        "ERR458509",
-        "ERR458516",
-        "ERR458880",
-        "ERR458887"]
+           "ERR458502",
+           "ERR458509",
+           "ERR458516",
+           "ERR458880",
+           "ERR458887"]
 
+CONTAINER_DIR = "00container"
+CONTAINER_URL = "shub://NIH-HPC/snakemake-class:latest"
+CONTAINER_NAME = "NIH-HPC-snakemake-class-master-latest.simg"
+
+###
+### main driver rule
+###
 rule setup:
-    input: "00container/rnaseq.simg",
+    input: "00container/{}".format(CONTAINER_NAME),
            "00fastq/ERP004763_sample_table.tsv",
            "00fastq/samples.yml",
            "00setup/config.yml",
@@ -27,14 +36,15 @@ rule setup:
 ###
 ### exercises and container
 ###
+
 rule fetch_container:
-    output: "00container/rnaseq.simg"
+    output: "{0}/{1}".format(CONTAINER_DIR, CONNTAINER_NAME)
     shell: 
         """
         module load singularity
         # for some reason pulling to subdir does not work for other users...
-        cd 00container
-        singularity pull -n rnaseq.simg shub://NIH-HPC/snakemake-class
+        cd {CONTAINER_DIR}
+        singularity pull -n {CONTAINER_NAME} {CONTAINER_URL}
         """
 
 rule link_dirs:
@@ -47,8 +57,8 @@ rule wrapper:
     output: "{ex}/rnaseq"
     shell: 
         """
-        img="$(readlink -f $PWD)/00container/rnaseq.simg"
-        sed "s:<IMAGEPATH>:${{img}}" {input} > {output}
+        img="$(readlink -f $PWD)/{CONTAINER_DIR}/{CONTAINER_NAME}"
+        sed "s:<IMAGEPATH>:${{img}}:" {input} > {output}
         """
 
 
@@ -58,10 +68,11 @@ rule wrapper:
 
 rule mkdir_00fastq:
     output: "00fastq"
-    shell: "mkdir 00fastq"
+    shell: "mkdir -p 00fastq"
+
 rule mkdir_00ref:
     output: "00ref"
-    shell: "mkdir 00ref"
+    shell: "mkdir -p 00ref"
 
 rule fetch_sample_desc:
     """fetch the sample description table; use local repo if possible"""
@@ -122,7 +133,6 @@ ENSEMBL_RELEASE = 91
 ENSEMBL_URL = "ftp://ftp.ensembl.org/pub/release-{}".format(ENSEMBL_RELEASE)
 
 genome_build = "R64-1-1"
-
 
 rule fetch_genome:
     output: "00ref/R64-1-1.fa"
