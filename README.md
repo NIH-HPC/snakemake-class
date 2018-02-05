@@ -10,17 +10,17 @@ complete setup:
 
 On the NIH HPC systems start an interactive session and clone the repository:
 ```
-$ sinteractive --cpus-per-task=10 --gres=lscratch:20
+loginnode$ sinteractive --cpus-per-task=10 --gres=lscratch:20
 ...
-$ module load singularity snakemake
-$ cd /data/$USER
-$ git clone https://github.com/NIH-HPC/snakemake-class.git
-$ cd snakemake-class
+computenode$ module load singularity snakemake
+computenode$ cd /data/$USER # or whereever you'd like the class directory to be
+computenode$ git clone https://github.com/NIH-HPC/snakemake-class.git
+computenode$ cd snakemake-class
 ```
 
 Then run the setup
 ```
-$ snakemake setup
+computenode$ snakemake setup
 ...
 ```
 
