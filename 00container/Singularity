@@ -1,5 +1,5 @@
 BootStrap: docker
-From: continuumio/miniconda3:4.3.11
+From: continuumio/miniconda3:4.3.27
 
 ################################################################################
 %setup
@@ -259,8 +259,8 @@ cd /opt
 [ -f rnaseq_env.yml ] || exit 1
 
 # create the rnaseq environment
-conda update --all --yes
-conda env create -n rnaseq -f rnaseq_env.yml
+conda update --all --yes --quiet
+conda env create --quiet -n rnaseq -f rnaseq_env.yml
 
 # clean up so image can be shrunk
 conda clean --all --yes
