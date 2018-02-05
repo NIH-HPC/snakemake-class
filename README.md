@@ -3,6 +3,8 @@
 Setup
 ================================================================================
 
+**Please complete setup before class**
+
 After cloning this repository, a number of steps (downloading the singularity
 container and data, ...) have to be carried out to complete before starting
 class. This requires that `singularity` and `snakemake` are on the path
@@ -21,6 +23,9 @@ computenode$ cd snakemake-class
 Then run the setup
 ```
 computenode$ snakemake setup
+computenode$ snakemake --use-singularity \
+    --singularity-args '-B $PWD:/data --pwd /data' \
+    --singularity-prefix=00container setup
 ...
 ```
 

@@ -25,7 +25,6 @@ rule setup:
            expand("exercise{n:02d}/00ref", n=range(1)),
            expand("exercise{n:02d}/00fastq", n=range(1)),
            expand("exercise{n:02d}/rnaseq", n=range(1)),
-           "exercise00/00container",
            "00ref/R64-1-1.fa", 
            "00ref/hisat_index/R64-1-1", 
            "00ref/R64-1-1.cdna_nc.fa", 
@@ -38,7 +37,7 @@ rule setup:
 ###
 
 rule fetch_container:
-    output: "{0}/{1}".format(CONTAINER_DIR, CONNTAINER_NAME)
+    output: "{0}/{1}".format(CONTAINER_DIR, CONTAINER_NAME)
     shell: 
         """
         module load singularity
@@ -59,6 +58,7 @@ rule wrapper:
         """
         img="$(readlink -f $PWD)/{CONTAINER_DIR}/{CONTAINER_NAME}"
         sed "s:<IMAGEPATH>:${{img}}:" {input} > {output}
+        chmod +x {output}
         """
 
 

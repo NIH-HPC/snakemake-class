@@ -4,3 +4,5 @@ exercise*/00*
 00container/rnaseq.simg
 .snakemake
 .*swp
+00fastq
+00ref
