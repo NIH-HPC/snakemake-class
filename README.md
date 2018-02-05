@@ -9,7 +9,7 @@ class. This requires `singularity` and `snakemake`. Here is an overview of the
 complete setup:
 
 On the NIH HPC systems start an interactive session and clone the repository:
-```bash
+```
 $ sinteractive --cpus-per-task=10 --gres=lscratch:20
 ...
 $ module load singularity snakemake
@@ -19,7 +19,7 @@ $ cd snakemake-class
 ```
 
 Then run the setup
-```bash
+```
 $ snakemake setup
 ...
 ```
