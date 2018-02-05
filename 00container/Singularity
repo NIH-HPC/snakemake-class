@@ -281,11 +281,8 @@ wget -O subread-1.6.0-Linux-x86_64.tar.gz \
 tar -xzf subread-1.6.0-Linux-x86_64.tar.gz
 rm -f subread-1.6.0-Linux-x86_64.tar.gz
 
-# create the biowulf specific directories for binding file systems
-mkdir /gpfs /spin1 /data /scratch /fdb /lscratch
-for i in {2..12}; do 
-    ln -s /gpfs/gsfs$i /gs$i
-done
+# create generic mount points for the workflow
+mkdir /data /resources
 
 # set up the environment for the container
 ################################################################################
