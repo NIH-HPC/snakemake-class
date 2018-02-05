@@ -17,9 +17,12 @@ rule setup:
            expand("exercise{n:02d}/00fastq", n=range(1)),
            expand("exercise{n:02d}/rnaseq", n=range(1)),
            "exercise00/00container",
-rule all:
-    input: "samples.yml",
-           expand("{sample}.fastq.gz", sample=SAMPLES)
+           "00ref/R64-1-1.fa", 
+           "00ref/hisat_index/R64-1-1", 
+           "00ref/R64-1-1.cdna_nc.fa", 
+           "00ref/R64-1-1.genes.gtf",
+           "00ref/ref.yml",
+           "00ref/R64-1-1.tran2gene.tsv",
 
 ###
 ### exercises and container
@@ -116,13 +119,6 @@ ENSEMBL_URL = "ftp://ftp.ensembl.org/pub/release-{}".format(ENSEMBL_RELEASE)
 
 genome_build = "R64-1-1"
 
-rule all:
-    input: "00ref/R64-1-1.fa", 
-           "00ref/hisat_index/R64-1-1", 
-           "00ref/R64-1-1.cdna_nc.fa", 
-           "00ref/R64-1-1.genes.gtf",
-           "00ref/ref.yml",
-           "00ref/R64-1-1.tran2gene.tsv"
 
 rule fetch_genome:
     output: "00ref/R64-1-1.fa"
