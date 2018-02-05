@@ -50,6 +50,9 @@ rule wrapper:
 rule mkdir_00fastq:
     output: "00fastq"
     shell: "mkdir 00fastq"
+rule mkdir_00ref:
+    output: "00ref"
+    shell: "mkdir 00ref"
 
 rule fetch_sample_desc:
     """fetch the sample description table; use local repo if possible"""
