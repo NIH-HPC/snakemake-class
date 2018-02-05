@@ -148,7 +148,7 @@ rule fetch_gtf:
     output: "00ref/R64-1-1.genes.gtf"
     shell:
         """
-        wget "{ENSEMBL_URL}/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.88.gtf.gz"
+        wget "{ENSEMBL_URL}/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.{ENSEMBL_RELEASE}.gtf.gz"
         gunzip Saccharomyces_cerevisiae.R64-1-1.88.gtf.gz
         mv Saccharomyces_cerevisiae.R64-1-1.88.gtf {output}
         """
