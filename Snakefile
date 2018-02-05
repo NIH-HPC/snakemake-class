@@ -29,7 +29,9 @@ rule fetch_container:
     shell: 
         """
         module load singularity
-        singularity pull -n {output} shub://NIH-HPC/snakemake-class
+        # for some reason pulling to subdir does not work for other users...
+        cd 00container
+        singularity pull -n rnaseq.simg shub://NIH-HPC/snakemake-class
         """
 
 rule link_dirs:
