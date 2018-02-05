@@ -1,0 +1,25 @@
+#!/bin/bash
+
+self="$(readlink -f '${BASH_SOURCE[0]'})"
+wfdir=$(dirname "${self}")
+container_dir="$(readlink -f ../00container)"
+image="${container_dir}/rnaseq.simg"
+
+###
+### set up generic bindpaths
+###
+SINGULARITY_BINDPATH="${wfdir}:/data"
+if [[ "${SLURM_JOB_ID:-none}" != "none" && -d /lscratch/${SLURM_JOB_ID} ]]; then
+    SINGULARITY_BINDPATH+=",/lscratch/${SLURM_JOB_ID}:/tmp"
+fi
+export SINGULARITY_BINDPATH
+
+# if the path to the script to be executed is absolute, it has
+# to be modified to fit the altered paths inside the container
+script="$1"
+shift
+if [[ "$script" =~ ^/.* ]]; then
+    script=$(readlink -f "$script" | sed -e "s:^${wfdir}:/data:")
+fi
+
+singularity exec --pwd /data ${image} bash "$script" "$@"

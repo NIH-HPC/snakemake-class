@@ -1,0 +1,6 @@
+exercise*/rnaseq
+exercise*/00*
+00container/NIH-HPC-snakemake-class-master-latest.simg
+00container/rnaseq.simg
+.snakemake
+.*swp
