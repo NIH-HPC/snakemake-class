@@ -43,9 +43,13 @@ rule link_dirs:
     shell: "cd {wildcards.ex} && ln -s ../{input}"
 
 rule wrapper:
-    input: "00setup/rnaseq"
+    input: "00setup/rnaseq.templ"
     output: "{ex}/rnaseq"
-    shell: "cp {input} {output}"
+    shell: 
+        """
+        img="$(readlink -f $PWD)/00container/rnaseq.simg"
+        sed "s:<IMAGEPATH>:${{img}}" {input} > {output}
+        """
 
 
 ###
@@ -233,8 +237,10 @@ rule make_hisat_index:
     output: idxf1 = "00ref/hisat_index/R64-1-1.1.ht2", 
             name = "00ref/hisat_index/R64-1-1"
     threads: 2
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
     shell:
         """
-        ../rnaseq hisat2-build -p {threads} {input} {output.name} \
+        hisat2-build -p {threads} {input} {output.name} \
                 && touch {output.name}
         """
