@@ -16,7 +16,7 @@ run 2 threads.
 Here is a possible implementation of this rule:
 
 ```python
-rule count:    
+rule count:
     input: bam = "02aln/{sample}.bam",
            annot = "00ref/R64-1-1.genes.gtf"
     output: "04count/{sample}"
@@ -38,9 +38,9 @@ automatically determine that alignments are required to genrate count files.
 The new `all` rule would therefore be
 
 ```python
-rule all:                      
+rule all:
     input: "04count/ERR458495",
-           "04count/ERR458502" 
+           "04count/ERR458502"
 ```
 
 #### Extend the pipeline to include all 6 samples
@@ -67,17 +67,17 @@ Now the workflow can be run on all samples in parallel. Again using a profile th
 sets the correct options for using the singularity container.
 
 ```console
-user@cn1234> snakemake --profile ./myprofile --cores 12 --resources mem_mb=
-Building DAG of jobs...                         
-Using shell: /bin/bash                          
-Provided cores: 10                              
+user@cn1234> snakemake --profile ./myprofile --cores 12 --resources mem_mb=12288
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 12
 Rules claiming more threads will be scaled down.
-Provided resources: mem_mb=12288                
-Job counts:                                     
-        count   jobs                            
-        1       all                             
-        6       count                           
-        6       hisat2                          
-        13                                      
+Provided resources: mem_mb=12288
+Job counts:
+        count   jobs
+        1       all
+        6       count
+        6       hisat2
+        13
 ...
 
