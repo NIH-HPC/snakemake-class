@@ -11,7 +11,7 @@ for the setup. Here is an overview of the complete setup:
 
 On the NIH HPC systems start an interactive session and clone the repository:
 ```
-user@headnode> sinteractive --cpus-per-task=10 --gres=lscratch:20
+user@headnode> sinteractive --cpus-per-task=12 --mem=24g --gres=lscratch:20
 ...
 user@cn1234> module load singularity snakemake hisat2
 user@cn1234> cd /data/$USER # or whereever you'd like the class directory to be

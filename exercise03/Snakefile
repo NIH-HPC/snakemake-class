@@ -1,5 +1,9 @@
 # vim: set ft=python:
 
+###
+### Exercise 3 - incorporate the featureCounts chunk as a rule
+###
+
 rule all:
     input: "02aln/ERR458495.bam",
            "02aln/ERR458502.bam"
@@ -8,6 +12,21 @@ rule clean:
     shell:
         """
         rm -rf 02aln
+        """
+
+###
+### FeatureCounts chunk - make this into a rule and incorporate it into the pipeline
+###
+
+# Input files are a bam file and the annotation file '00ref/R64-1-1.genes.gtf'.
+# Output for each sample should to to directory 04count
+# featureCounts should be run with 2 threads and is expected to use less than 4GB
+# of memory.
+
+    shell:
+        """
+        featureCounts -a {input.annot} -o {output} \
+                -T {threads} --minOverlap 10 {input.bam}
         """
 
 rule hisat2:
@@ -20,6 +39,7 @@ rule hisat2:
     params: hisat = "-k 4"
     singularity:
         "shub://NIH-HPC/snakemake-class:latest"
+    params: hisat = "-k 4"
     shell:
         """
         hisat2 {params.hisat} -x {input.idx} -U {input.fq} --threads {threads} \

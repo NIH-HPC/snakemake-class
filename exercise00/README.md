@@ -33,7 +33,7 @@ Make sure this and all the following exercises are done within an interactive
 session with the singularity and snakemake modules loaded:
 
 ```console
-loginnode$ sinteractive --cpus-per-task=12 --gres=lscratch:20
+loginnode$ sinteractive --cpus-per-task=12 --gres=lscratch:20 --mem=24g
 ...
 user@cn1234> module load singularity snakemake
 [+] Loading singularity 2.4.1

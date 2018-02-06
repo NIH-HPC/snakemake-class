@@ -60,7 +60,7 @@ rule hisat2:
     output: bam = "02aln/{sample}.bam",
             bai = "02aln/{sample}.bam.bai"
     threads: 4
-    resources: mem_mb = 6000
+    resources: mem_mb = 6144
     singularity:
         "shub://NIH-HPC/snakemake-class:latest"
     shell:
@@ -74,7 +74,7 @@ rule hisat2:
 ```
 
 ```console
-user@cn1234> snakemake --cores 8 --resources mem_mb=12000 --use-singularity \
+user@cn1234> snakemake --cores 8 --resources mem_mb=12288 --use-singularity \
     --singularity-args '-B $PWD:/data --pwd /data' \
     --singularity-prefix=../00container
 ```
@@ -92,6 +92,7 @@ rule hisat2:
             bai = "02aln/{sample}.bam.bai"
     threads: 4
     params: hisat = "-k 4"
+    resources: mem_mb = 6144
     singularity:
         "shub://NIH-HPC/snakemake-class:latest"
     shell:
