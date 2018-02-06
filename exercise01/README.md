@@ -8,10 +8,7 @@ The script `aln.sh` takes a fastq file as an argument and aligns it to the
 S. cerevisiae genome:
 
 ```console
-[user@cn1234] cat aln.sh
-[user@cn1234] $ cat aln.sh
-[user@cn1234]# cat aln.sh
-[user@cn1234]% cat aln.sh
+user@cn1234> cat aln.sh
 
 #! /bin/bash
 
@@ -26,7 +23,7 @@ hisat2 -k 4 -x $idx -U $fq --threads 4 \
   > $bam
 samtools index $bam
 
-$ ./aln.sh 00fastq/ERR458495.fastq.gz
+user@cn1234> ./aln.sh 00fastq/ERR458495.fastq.gz
 
 1066501 reads; of these:
   1066501 (100.00%) were unpaired; of these:
