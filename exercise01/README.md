@@ -8,7 +8,10 @@ The script `aln.sh` takes a fastq file as an argument and aligns it to the
 S. cerevisiae genome:
 
 ```console
+[user@cn1234] $ cat aln.sh
 [user@cn1234]$ cat aln.sh
+user@cn1234 $ cat aln.sh
+user@cn1234$ cat aln.sh
 
 #! /bin/bash
 
