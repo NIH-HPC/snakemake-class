@@ -1,9 +1,8 @@
 [![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg)](https://singularity-hub.org/collections/558) 
 
-Setup
+Setup - please complete before class
 ================================================================================
 
-**Please complete setup before class**
 
 After cloning this repository, a number of steps (downloading the singularity
 container and data, ...) have to be carried out to complete before starting
@@ -29,3 +28,5 @@ computenode$ snakemake --use-singularity \
 ...
 ```
 
+The `Snakefile` in the root directory of the repo takes care of all the setup
+required for class. It also serves as another example for a Snakemake workflow.

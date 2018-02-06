@@ -32,6 +32,13 @@ rule setup:
            "00ref/ref.yml",
            "00ref/R64-1-1.tran2gene.tsv",
 
+rule clean:
+    shell:
+        """
+        rm -rf 00ref 00fastq
+        rm -f exercise*/00* exercise*/rnaseq 00setup/config.yml
+        """
+
 ###
 ### exercises and container
 ###
