@@ -22,8 +22,9 @@ rule setup:
            "00fastq/samples.yml",
            "00setup/config.yml",
            expand("00fastq/{sample}.fastq.gz", sample=SAMPLES),
-           expand("exercise{n:02d}/00ref", n=range(1, 4)),
-           expand("exercise{n:02d}/00fastq", n=range(1, 4)),
+           expand("exercise{n:02d}/00ref", n=range(1, 5)),
+           expand("exercise{n:02d}/00fastq", n=range(1, 5)),
+           expand("exercise{n:02d}/config.yml", n=range(4, 5)),
            "exercise00/rnaseq",
            "00ref/R64-1-1.fa", 
            "00ref/hisat_index/R64-1-1", 
@@ -67,7 +68,7 @@ rule link_dirs:
     shell: "cd {wildcards.ex} && ln -s ../{input}"
 
 rule wrapper:
-    input: "00setup/rnaseq.templ"
+    input: "00container/rnaseq.templ"
     output: "{ex}/rnaseq"
     shell: 
         """
@@ -75,7 +76,6 @@ rule wrapper:
         sed "s:<IMAGEPATH>:${{img}}:" {input} > {output}
         chmod +x {output}
         """
-
 
 ###
 ### data
@@ -123,11 +123,9 @@ rule fetch_fastq:
 
 rule config_yml:
     input: "00fastq/samples.yml", "00ref/ref.yml"
-    output: "00setup/config.yml"
+    output: "{prefix}/config.yml"
     shell:
         """
-        echo "container: 00config/rnaseq.img" > {output}
-        echo "wrapper: rnaseq" >> {output}
         cat {input} >> {output}
         """
 
