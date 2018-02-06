@@ -37,18 +37,13 @@ Let's turn this into a simple Snakefile by formalizing the input and
 output. Note that by convention snakemake looks for a file named
 `Snakefile` if it is not given a different filename with the `-s` option.
 
-The snakefile contains a single rule which describes how to create
-a specific type of output file (or multiple) from a specific type
-of input file. Here the inputs are a fastq file and a hisat2 index and the
-output a bam file and an index. When snakemake is asked to create
-a concrete file it searches for a rule which has an output that
-matches this concrete file.
+The snakefile contains a single rule which describes how to create a specific
+type of output file (or multiple) from a specific type of input file. Here the
+inputs are a fastq file and a hisat2 index and the output a bam file and an
+index.
 
-```console
-user@cn1234> cp aln.sh Snakefile
-user@cn1234> # edit file
-user@cn1234> cat Snakefile
-
+```python
+# this file is 'Snakefile'
 rule hisat2:
     input: fq = "00fastq/{sample}.fastq.gz",
            idx = "00ref/hisat_index/R64-1-1"
@@ -62,7 +57,12 @@ rule hisat2:
           > {output.bam}
         samtools index {output.bam}
         """
+```
 
+When snakemake is asked to create a concrete file it searches for a rule which
+has an output that matches this concrete file and then executes the shell code.
+
+```console
 user@cn1234> snakemake 02aln/ERR458502.bam
 Building DAG of jobs...
 Using shell: /bin/bash
