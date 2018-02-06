@@ -13,16 +13,16 @@ On the NIH HPC systems start an interactive session and clone the repository:
 ```
 loginnode$ sinteractive --cpus-per-task=10 --gres=lscratch:20
 ...
-computenode$ module load singularity snakemake hisat2
-computenode$ cd /data/$USER # or whereever you'd like the class directory to be
-computenode$ git clone https://github.com/NIH-HPC/snakemake-class.git
-computenode$ cd snakemake-class
+cn1234$ module load singularity snakemake hisat2
+cn1234$ cd /data/$USER # or whereever you'd like the class directory to be
+cn1234$ git clone https://github.com/NIH-HPC/snakemake-class.git
+cn1234$ cd snakemake-class
 ```
 
 Then run the setup
 ```
-computenode$ snakemake setup
-computenode$ snakemake --use-singularity \
+cn1234$ snakemake setup
+cn1234$ snakemake --use-singularity \
     --singularity-args '-B $PWD:/data --pwd /data' \
     --singularity-prefix=00container setup
 ...

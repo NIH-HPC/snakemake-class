@@ -1,7 +1,9 @@
 exercise*/rnaseq
 exercise*/00*
+exercise*/02aln
 00container/NIH-HPC-snakemake-class-master-latest.simg
 00container/rnaseq.simg
+00setup/config.yml
 .snakemake
 .*swp
 00fastq

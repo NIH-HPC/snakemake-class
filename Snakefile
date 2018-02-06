@@ -22,9 +22,9 @@ rule setup:
            "00fastq/samples.yml",
            "00setup/config.yml",
            expand("00fastq/{sample}.fastq.gz", sample=SAMPLES),
-           expand("exercise{n:02d}/00ref", n=range(1)),
-           expand("exercise{n:02d}/00fastq", n=range(1)),
-           expand("exercise{n:02d}/rnaseq", n=range(1)),
+           expand("exercise{n:02d}/00ref", n=range(1, 2)),
+           expand("exercise{n:02d}/00fastq", n=range(1, 2)),
+           expand("exercise{n:02d}/rnaseq", n=range(2)),
            "00ref/R64-1-1.fa", 
            "00ref/hisat_index/R64-1-1", 
            "00ref/R64-1-1.cdna_nc.fa", 
@@ -37,6 +37,7 @@ rule clean:
         """
         rm -rf 00ref 00fastq
         rm -f exercise*/00* exercise*/rnaseq 00setup/config.yml
+        rm -rf exercise*/02aln
         """
 
 ###
