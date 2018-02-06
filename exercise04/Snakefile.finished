@@ -1,0 +1,52 @@
+# vim: set ft=python:
+
+###
+### Exercise 4 - using a configuration file for extracting hisat index path and sample ids
+###
+
+# config file is loaded as a global dict named 'config'
+configfile: "config.yml"
+samples = config["samples"].keys()
+
+rule all:
+    input: expand("04count/{s}", s=samples)
+
+rule clean:
+    shell:
+        """
+        rm -rf 02aln 04count
+        """
+
+rule count:    
+    input: bam = "02aln/{sample}.bam",
+           annot = "00ref/R64-1-1.genes.gtf"
+    output: "04count/{sample}"
+    threads: 2
+    resources: mem_mb = 4096
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        featureCounts -a {input.annot} -o {output} \
+                -T {threads} --minOverlap 10 {input.bam}
+        """
+
+## hisat index should be obtained from the global configuration file
+rule hisat2:
+    input: fq = "00fastq/{sample}.fastq.gz",
+           idx = config["reference"]["hisat_index"]
+    output: bam = "02aln/{sample}.bam",
+            bai = "02aln/{sample}.bam.bai"
+    threads: 4
+    resources: mem_mb = 6144
+    params: hisat = "-k 4"
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        hisat2 {params.hisat} -x {input.idx} -U {input.fq} --threads {threads} \
+          | samtools sort -T tmp/{wildcards.sample} -O BAM \
+          > {output.bam}
+        samtools index {output.bam}
+        """
+
