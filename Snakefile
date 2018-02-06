@@ -34,6 +34,7 @@ rule setup:
     shell:
         """
         for ex in exercises*; do
+            rm -rf $ex/00ref $ex/00fastq
             cp -lr 00ref 00fastq $ex
         done
         """

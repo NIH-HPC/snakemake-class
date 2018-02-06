@@ -1,0 +1,3 @@
+use-singularity: true
+singularity-prefix: ../00container
+singularity-args: '-B $PWD:/data --pwd /data'

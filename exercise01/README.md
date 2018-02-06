@@ -2,8 +2,7 @@
 
 **Goal:** turn a shell script (`aln.sh` - alignment with hisat2) into a single
 rule Snakemake file (`Snakefile`). One possible solution is given in
-`Snakefile.finished`.
-
+**Snakefile.finished**.
 
 The script `aln.sh` takes a fastq file as an argument and aligns it to the
 S. cerevisiae genome:

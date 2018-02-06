@@ -21,10 +21,7 @@ user@cn1234> cd snakemake-class
 
 Then run the setup
 ```
-user@cn1234> snakemake setup
-user@cn1234> snakemake --use-singularity \
-    --singularity-args '-B $PWD:/data --pwd /data' \
-    --singularity-prefix=00container setup
+user@cn1234> ./setup.sh
 ...
 ```
 
