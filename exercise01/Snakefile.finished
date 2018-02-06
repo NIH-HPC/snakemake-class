@@ -1,7 +1,5 @@
 # vim: set ft=python:
 
-shell.executable("./rnaseq")
-
 rule all:
     input: "02aln/ERR458495.bam",
            "02aln/ERR458502.bam"
@@ -17,6 +15,8 @@ rule hisat2:
            idx = "00ref/hisat_index/R64-1-1"
     output: bam = "02aln/{sample}.bam",
             bai = "02aln/{sample}.bam.bai"
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
     shell:
         """
         mkdir -p 02aln

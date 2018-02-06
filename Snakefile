@@ -24,13 +24,19 @@ rule setup:
            expand("00fastq/{sample}.fastq.gz", sample=SAMPLES),
            expand("exercise{n:02d}/00ref", n=range(1, 2)),
            expand("exercise{n:02d}/00fastq", n=range(1, 2)),
-           expand("exercise{n:02d}/rnaseq", n=range(2)),
+           "exercise00/rnaseq",
            "00ref/R64-1-1.fa", 
            "00ref/hisat_index/R64-1-1", 
            "00ref/R64-1-1.cdna_nc.fa", 
            "00ref/R64-1-1.genes.gtf",
            "00ref/ref.yml",
            "00ref/R64-1-1.tran2gene.tsv",
+    shell:
+        """
+        for ex in exercises*; do
+            cp -lr 00ref 00fastq $ex
+        done
+        """
 
 rule clean:
     shell:
@@ -73,14 +79,6 @@ rule wrapper:
 ###
 ### data
 ###
-
-rule mkdir_00fastq:
-    output: "00fastq"
-    shell: "mkdir -p 00fastq"
-
-rule mkdir_00ref:
-    output: "00ref"
-    shell: "mkdir -p 00ref"
 
 rule fetch_sample_desc:
     """fetch the sample description table; use local repo if possible"""
