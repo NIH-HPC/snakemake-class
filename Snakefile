@@ -238,7 +238,7 @@ rule ref_yaml:
         echo "  genome_build: R64-1-1" >> {output}
         echo "  genome_file: 00ref/R64-1-1.fa" >> {output}
         echo "  cdna_file: 00ref/R64-1-1.cdna.fa" >> {output}
-        echo "  hisat_index: 00ref/hisat_index/R64-1-1"
+        echo "  hisat_index: 00ref/hisat_index/R64-1-1" >> {output}
         """
 
 
