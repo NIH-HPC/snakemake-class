@@ -1,6 +1,10 @@
 exercise*/rnaseq
 exercise*/00*
+exercise*/01qc
 exercise*/02aln
+exercise*/03track
+exercise*/04count
+exercise*/05salmon
 00container/*.simg
 */config.yml
 .snakemake

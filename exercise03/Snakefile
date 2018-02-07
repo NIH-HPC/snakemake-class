@@ -39,7 +39,6 @@ rule hisat2:
     params: hisat = "-k 4"
     singularity:
         "shub://NIH-HPC/snakemake-class:latest"
-    params: hisat = "-k 4"
     shell:
         """
         hisat2 {params.hisat} -x {input.idx} -U {input.fq} --threads {threads} \

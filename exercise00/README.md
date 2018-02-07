@@ -1,6 +1,6 @@
-## Exercise 00
+## Exercise 00 - Singularity refresher.
 
-This is a short recap of how to use singularity containers. For more detail
+This is a brief reminder of how to use singularity containers. For more detail
 see the materials for the companion
 [Singularity class](https://github.com/NIH-HPC/Singularity-Tutorial) or the
 [Singularity documentation](http://singularity.lbl.gov/quickstart).
@@ -20,8 +20,9 @@ hub](https://www.singularity-hub.org/) which can generate new builds of containe
 either automatically when changes are pushed to GitHub repo or manually on
 request. The container can be pulled from Singularity hub with
 
-```
-singularity pull shub://NIH-HPC/snakemake-class
+```console
+user@cn1234> #No need to run this
+user@cn1234> singularity pull shub://NIH-HPC/snakemake-class
 ```
 
 However, the setup script already took care of doing this, so there is not
@@ -69,9 +70,10 @@ Options:
 
 Note that this container does not have directories in the container
 corresponding to all possible mount points on the NIH HPC systems. Therefore
-singularity is not able to automatically bind mount the current working
-directory inside the container. It is able to mount `/home` which then becomes
-the default working directory:
+singularity may not able to automatically bind mount the current working
+directory inside the container. In that case it is also not able to set the
+working directory inside the container to the same as outside. It is, however,
+able to mount `/home` which then becomes the default working directory:
 
 ```console
 user@cn1234> singularity shell $container

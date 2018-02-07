@@ -4,6 +4,14 @@
 rule Snakemake file (`Snakefile`). One possible solution is given in
 **Snakefile.finished**.
 
+
+<div style="background-color:# FFFACD;">
+Snakefiles are basically Python with some extra constructs for defining
+rules based workflows. That means that Snakefiles are **whitesspace sensitive** - 
+indentation matters and tabs and spaces can't be mixed. Code in these examples
+uses spaces - no tabs. Please adjust your editors accordingly.
+</div>
+
 The script `aln.sh` takes a fastq file as an argument and aligns it to the
 S. cerevisiae genome:
 
@@ -31,6 +39,8 @@ user@cn1234> bash aln.sh 00fastq/ERR458495.fastq.gz
     786836 (73.78%) aligned exactly 1 time
     227402 (21.32%) aligned >1 times
 95.10% overall alignment rate
+
+user@cn1234> rm -rf 02aln
 ```
 
 Let's turn this into a simple Snakefile by formalizing the input and

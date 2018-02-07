@@ -23,6 +23,11 @@ Then run the setup
 ```
 user@cn1234> ./setup.sh
 ...
++------------------------------------------------------------------------------+
+|                                                                              |
+|                Class materials have been set up successfully                 |
+|                                                                              |
++------------------------------------------------------------------------------+
 ```
 
 The `Snakefile` in the root directory of the repo takes care of all the setup

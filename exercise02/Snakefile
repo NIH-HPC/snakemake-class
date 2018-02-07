@@ -15,12 +15,10 @@ rule hisat2:
            idx = "00ref/hisat_index/R64-1-1"
     output: bam = "02aln/{sample}.bam",
             bai = "02aln/{sample}.bam.bai"
-    resources: mem_mb = 6000
     singularity:
         "shub://NIH-HPC/snakemake-class:latest"
     shell:
         """
-        mkdir -p 02aln
         hisat2 -k 4 -x {input.idx} -U {input.fq} --threads 4 \
           | samtools sort -T tmp/{wildcards.sample} -O BAM \
           > {output.bam}

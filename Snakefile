@@ -32,7 +32,7 @@ rule setup:
            "00ref/R64-1-1.tran2gene.tsv",
     shell:
         """
-        for ex in exercises*; do
+        for ex in exercise*; do
             rm -rf $ex/00ref $ex/00fastq
             cp -lr 00ref 00fastq $ex
         done
@@ -44,7 +44,7 @@ rule clean:
         rm -rf 00ref 00fastq
         rm -rf exercise*/00* exercise*/rnaseq exercise*/config.yml
         rm -rf exercise*/02aln exercise*/04count
-        rm -rf exercises*/slurm-* exercises*/.snakemake
+        rm -rf exercise*/slurm-* exercise*/.snakemake
         """
 
 ###
@@ -236,8 +236,9 @@ rule ref_yaml:
         echo "reference:" > {output}
         echo "  ensembl_ver: {ENSEMBL_RELEASE}" >> {output}
         echo "  genome_build: R64-1-1" >> {output}
-        echo "  genome_file: R64-1-1.fa" >> {output}
-        echo "  cdna_file: R64-1-1.cdna.fa" >> {output}
+        echo "  genome_file: 00ref/R64-1-1.fa" >> {output}
+        echo "  cdna_file: 00ref/R64-1-1.cdna.fa" >> {output}
+        echo "  hisat_index: 00ref/hisat_index/R64-1-1"
         """
 
 

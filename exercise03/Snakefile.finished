@@ -52,5 +52,4 @@ rule hisat2:
           > {output.bam}
         samtools index {output.bam}
         """
-    
-    
+ 
