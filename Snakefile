@@ -20,7 +20,6 @@ rule setup:
     input: "00container/{}".format(CONTAINER_NAME),
            "00fastq/ERP004763_sample_table.tsv",
            "00fastq/samples.yml",
-           "00setup/config.yml",
            expand("00fastq/{sample}.fastq.gz", sample=SAMPLES),
            expand("exercise{n:02d}/config.yml", n=range(4, 7)),
            "exercise00/rnaseq",
