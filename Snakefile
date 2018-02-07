@@ -30,7 +30,7 @@ rule setup:
            "00ref/ref.yml",
            "00ref/R64-1-1.tran2gene.tsv",
            "00ref/R64-1-1.genes.bed12",
-           "00ref/chomosomes",
+           "00ref/chromosomes",
     shell:
         """
         for ex in exercise*; do
@@ -245,7 +245,7 @@ rule ref_yaml:
         echo "  ensembl_ver: {ENSEMBL_RELEASE}" >> {output}
         echo "  genome_build: R64-1-1" >> {output}
         echo "  genome_file: 00ref/R64-1-1.fa" >> {output}
-        echo "  cdna_file: 00ref/R64-1-1.cdna.fa" >> {output}
+        echo "  cdna_file: 00ref/R64-1-1.cdna_nc.fa" >> {output}
         echo "  hisat_index: 00ref/hisat_index/R64-1-1" >> {output}
         """
 
