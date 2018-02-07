@@ -29,6 +29,8 @@ rule setup:
            "00ref/R64-1-1.genes.gtf",
            "00ref/ref.yml",
            "00ref/R64-1-1.tran2gene.tsv",
+           "00ref/R64-1-1.genes.bed12",
+           "00ref/chomosomes",
     shell:
         """
         for ex in exercise*; do
@@ -227,6 +229,13 @@ rule make_transcript_gene_map:
             for tid, gid in transcripts:
                 of.write("{}\t{}\n".format(tid, gid))
 
+rule chroms:
+    output: "00ref/chromosomes"
+    shell:
+        """
+        curl -s {ENSEMBL_URL}/fasta/saccharomyces_cerevisiae/dna_index/Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa.gz.fai \
+                | cut -f1,2 > {output}
+        """
 
 rule ref_yaml:
     output: "00ref/ref.yml"
