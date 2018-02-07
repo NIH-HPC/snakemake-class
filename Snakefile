@@ -22,8 +22,6 @@ rule setup:
            "00fastq/samples.yml",
            "00setup/config.yml",
            expand("00fastq/{sample}.fastq.gz", sample=SAMPLES),
-           expand("exercise{n:02d}/00ref", n=range(1, 7)),
-           expand("exercise{n:02d}/00fastq", n=range(1, 7)),
            expand("exercise{n:02d}/config.yml", n=range(4, 7)),
            "exercise00/rnaseq",
            "00ref/R64-1-1.fa", 
@@ -62,11 +60,6 @@ rule fetch_container:
         cd {CONTAINER_DIR}
         singularity pull -n {CONTAINER_NAME} {CONTAINER_URL}
         """
-
-rule link_dirs:
-    input: "00{dir}"
-    output: "{ex}/00{dir}"
-    shell: "cd {wildcards.ex} && ln -s ../{input}"
 
 rule wrapper:
     input: "00container/rnaseq.templ"
