@@ -18,6 +18,6 @@ user@cn1234> module load graphviz
 user@cn1234> snakemake --rulegraph | dot -Tpng > rulegraph.png
 ```
 
-<img width="200" alt="workflow rulegraph" src="./rulegraph.png" />
+<img width="400" alt="workflow rulegraph" src="./rulegraph.png" />
 
 
