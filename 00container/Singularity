@@ -13,6 +13,7 @@ cat <<END_OF_ENV > /opt/rnaseq_env.yml
 name: rnaseq
 channels:
   -  bioconda
+  -  conda-forge
   -  defaults
 dependencies:
   -  argh=0.26.1
@@ -43,6 +44,7 @@ dependencies:
   -  bioconductor-xvector
   -  bioconductor-zlibbioc
   -  bx-python
+  -  python-lzo
   -  expat
   -  fastqc
   -  gffutils

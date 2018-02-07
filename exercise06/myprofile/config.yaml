@@ -1,0 +1,8 @@
+use-singularity: true
+singularity-prefix: ../00container
+singularity-args: '-B $PWD:/data,/lscratch/$SLURM_JOB_ID:/tmp --pwd /data'
+max-jobs-per-second: 1
+latency-wait: 120
+keep-going: true
+cluster: 'sbatch -c {threads} --mem={resources.mem_mb} --partition={cluster.partition} --time={cluster.time} {cluster.extra}'
+

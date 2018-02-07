@@ -2,7 +2,7 @@ exercise*/rnaseq
 exercise*/00*
 exercise*/02aln
 00container/*.simg
-00setup/config.yml
+*/config.yml
 .snakemake
 .*swp
 00fastq

@@ -1,0 +1,6 @@
+__default__:
+    partition: quick
+    time: 10
+    extra: "--gres=lscratch:10"
+hisat2:
+    partition: norm

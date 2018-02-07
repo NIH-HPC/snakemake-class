@@ -1,0 +1,159 @@
+# vim: set ft=python:
+
+###
+### Exercise 6 - read through the snakefile and create a dag/rulegraph
+###
+
+configfile: "config.yml"
+samples = config["samples"].keys()
+
+localrules: all, merge_counts, clean
+
+rule all:
+    input: expand("01qc/{s}_fastqc.html", s=samples),
+           expand("02aln/{s}.bam", s=samples),
+           expand("01qc/{s}.infer_experiment", s=samples),
+           "04count/merged",
+           expand("05salmon/{s}", s=samples)
+
+rule clean:
+    shell:
+        """
+        rm -rf 01qc 02aln 03track 04count 05salmon
+        """
+
+rule fastqc:
+    """
+    the shell portion of rules run in a singularity container
+    is passed to singularity as a string. Therefore shell
+    variables have to be escaped or code moved to an external
+    script
+    """
+    input: "00fastq/{sample}.fastq.gz"
+    output: pkg = "01qc/{sample}_fastqc.zip",
+            summary = "01qc/{sample}_fastqc_summary.txt",
+            data = "01qc/{sample}_fastqc_data.txt",
+            html = "01qc/{sample}_fastqc.html"
+    threads: 1
+    resources: mem_mb = 2048
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        odir=01qc/{wildcards.sample}_fastqc
+        fastqc -o 01qc --extract {input}
+        mv \$odir/summary.txt {output.summary}
+        mv \$odir/fastqc_data.txt {output.data}
+        rm -rf \$odir
+        """
+
+rule hisat2:
+    input: fq = "00fastq/{sample}.fastq.gz",
+           idx = config["reference"]["hisat_index"]
+    output: bam = "02aln/{sample}.bam",
+            bai = "02aln/{sample}.bam.bai"
+    threads: 4
+    resources: mem_mb = 6144
+    params: hisat = "-k 4"
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        hisat2 {params.hisat} -x {input.idx} -U {input.fq} --threads {threads} \
+          | samtools sort -T /tmp/{wildcards.sample} -O BAM \
+          > {output.bam}
+        samtools index {output.bam}
+        ls -lh /tmp
+        """
+
+
+rule rseqc:
+    """
+    post-process the sorted bam file.
+    Copy bam file to /tmp  and operate there. This is done b/c /tmp is
+    a bind mount of /lscratch/$SLURM_JOB_ID.
+    """
+    input: bam = "02aln/{sample}.bam",
+           bai = "02aln/{sample}.bam.bai",
+           bed = "00ref/R64-1-1.genes.bed12",
+           gs  = "00ref/chromosomes"
+    output: ie  = "01qc/{sample}.infer_experiment",
+            gb  = "01qc/{sample}.geneBodyCoverage.txt",
+            gb2 = "01qc/{sample}.geneBodyCoverage.r",
+            gb3 = "01qc/{sample}.geneBodyCoverage.curves.pdf",
+            wig = "03track/{sample}.wig"
+    threads: 1
+    resources: mem_mb = 4096
+    params: tmp_bam = lambda wc: "/tmp/{wc.sample}.bam"
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        cp {input.bam} {input.bai} /tmp
+        infer_experiment.py -i {params.tmp_bam} -r {input.bed} > {output.ie}
+        geneBody_coverage.py -i {params.tmp_bam} -r {input.bed} \
+                -o 01qc/{wildcards.sample}
+        bam2wig.py -i {params.tmp_bam} -s {input.gs} \
+                -o $(echo {output.wig} | sed 's/.wig//') -t 1000000 -u
+        """
+
+
+rule count:    
+    input: bam = "02aln/{sample}.bam",
+           annot = "00ref/R64-1-1.genes.gtf"
+    output: "04count/{sample}"
+    threads: 2
+    resources: mem_mb = 4096
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        featureCounts -a {input.annot} -o {output} \
+                -T {threads} --minOverlap 10 {input.bam}
+        """
+
+rule merge_counts:
+    input: expand("04count/{s}", s=samples)
+    output: "04count/merged"
+    threads: 1
+    shell:
+        """
+        set -x
+        rm -f {output}
+        for f in {input}; do
+            if [[ -e {output} ]]; then
+                paste {output} <(tail -n +2 $f | awk '{{print $7"\t"$1}}') \
+                    | awk -F'\t' 'BEGIN{{OFS="\t"}} $NF != $1 {{exit 1}} {{NF-=1; print}}' \
+                    > {output}.tmp && mv {output}.tmp {output}
+            else
+                tail -n +2 $f > {output}
+            fi
+        done
+        """
+
+rule salmon_index:
+    input: config["reference"]["cdna_file"]
+    output: "00ref/salmon_index"
+    threads: 4
+    resources: mem_mb = 6144
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        rm -rf {output}
+        salmon index -t {input} -k 21 -i {output} -p {threads}
+        """
+
+rule salmon_quant:
+    input: fq = "00fastq/{sample}.fastq.gz",
+           idx = "00ref/salmon_index"
+    output: "05salmon/{sample}"
+    threads: 4
+    resources: mem_mb = 4048
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        salmon quant -i {input.idx} -l U -r <(zcat {input.fq}) \
+                -p {threads} -o {output}
+        """

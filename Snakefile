@@ -22,9 +22,9 @@ rule setup:
            "00fastq/samples.yml",
            "00setup/config.yml",
            expand("00fastq/{sample}.fastq.gz", sample=SAMPLES),
-           expand("exercise{n:02d}/00ref", n=range(1, 5)),
-           expand("exercise{n:02d}/00fastq", n=range(1, 5)),
-           expand("exercise{n:02d}/config.yml", n=range(4, 5)),
+           expand("exercise{n:02d}/00ref", n=range(1, 7)),
+           expand("exercise{n:02d}/00fastq", n=range(1, 7)),
+           expand("exercise{n:02d}/config.yml", n=range(4, 7)),
            "exercise00/rnaseq",
            "00ref/R64-1-1.fa", 
            "00ref/hisat_index/R64-1-1", 
@@ -44,8 +44,9 @@ rule clean:
     shell:
         """
         rm -rf 00ref 00fastq
-        rm -f exercise*/00* exercise*/rnaseq 00setup/config.yml
-        rm -rf exercise*/02aln
+        rm -rf exercise*/00* exercise*/rnaseq exercise*/config.yml
+        rm -rf exercise*/02aln exercise*/04count
+        rm -rf exercises*/slurm-* exercises*/.snakemake
         """
 
 ###

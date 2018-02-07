@@ -1,0 +1,57 @@
+# vim: set ft=python:
+
+###
+### Exercise 5 - run tasks except for all and clean on the cluster as batch jobs
+###
+#
+# use a cluster config file. Note that we are requesting lscratch for all jobs
+# and are instructing singularity to mount /lscratch/$SLURM_JOB_ID as /tmp in
+# the container. Ensure that all and clean run locally, not as batch jobs
+
+configfile: "config.yml"
+samples = config["samples"].keys()
+
+localrules: all, clean
+
+rule all:
+    input: expand("04count/{s}", s=samples)
+
+rule clean:
+    shell:
+        """
+        rm -rf 02aln 04count
+        """
+
+rule count:    
+    input: bam = "02aln/{sample}.bam",
+           annot = "00ref/R64-1-1.genes.gtf"
+    output: "04count/{sample}"
+    threads: 2
+    resources: mem_mb = 4096
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        featureCounts -a {input.annot} -o {output} \
+                -T {threads} --minOverlap 10 {input.bam}
+        """
+
+rule hisat2:
+    input: fq = "00fastq/{sample}.fastq.gz",
+           idx = config["reference"]["hisat_index"]
+    output: bam = "02aln/{sample}.bam",
+            bai = "02aln/{sample}.bam.bai"
+    threads: 4
+    resources: mem_mb = 6144
+    params: hisat = "-k 4"
+    singularity:
+        "shub://NIH-HPC/snakemake-class:latest"
+    shell:
+        """
+        hisat2 {params.hisat} -x {input.idx} -U {input.fq} --threads {threads} \
+          | samtools sort -T /tmp/{wildcards.sample} -O BAM \
+          > {output.bam}
+        samtools index {output.bam}
+        ls -lh /tmp
+        """
+
