@@ -47,8 +47,8 @@ When submitting to the cluster, a number of other of other options are important
   - `--jobs`: The number of jobs to run concurrently.
   - `--cluster-config`: The cluster config file
 
-<div style="background-color:# FFFACD;">Please don't run snakemake workflows
-on the login node, even if submitting jobs as batch jobs. Run the main process as a 
+:information_source: Please **do not run snakemake workflows on the login node**, 
+even if submitting jobs as batch jobs. Run the main process as a 
 batch job itself or, if the workflow runs quickly enough, from an sinteractive
 session</div>
 

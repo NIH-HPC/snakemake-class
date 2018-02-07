@@ -5,12 +5,10 @@ rule Snakemake file (`Snakefile`). One possible solution is given in
 **Snakefile.finished**.
 
 
-<div style="background-color:# FFFACD;">
-Snakefiles are basically Python with some extra constructs for defining
-rules based workflows. That means that Snakefiles are **whitesspace sensitive** - 
+:information_source: Snakefiles are basically Python with some extra constructs for defining
+rules based workflows. That means that **Snakefiles are whitesspace sensitive** - 
 indentation matters and tabs and spaces can't be mixed. Code in these examples
 uses spaces - no tabs. Please adjust your editors accordingly.
-</div>
 
 The script `aln.sh` takes a fastq file as an argument and aligns it to the
 S. cerevisiae genome:
