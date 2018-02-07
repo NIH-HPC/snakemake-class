@@ -18,6 +18,13 @@ user@cn1234> module load graphviz
 user@cn1234> snakemake --rulegraph | dot -Tpng > rulegraph.png
 ```
 
-<img width="400" alt="workflow rulegraph" src="./rulegraph.png" />
+<img width="500" style="margin:0px auto;display:block" alt="workflow rulegraph" src="./rulegraph.png" />
 
+To display all the jobs that would be run to generate all output files and how
+they relate to each other use the following:
 
+```console
+user@cn1234> snakemake --dag | dot -Tpng > dag.png
+```
+
+<img width="600" style="margin:0px auto;display:block" alt="workflow dag" src="./dag.png" />
