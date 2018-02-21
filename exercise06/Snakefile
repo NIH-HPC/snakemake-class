@@ -84,7 +84,7 @@ rule rseqc:
             wig = "03track/{sample}.wig"
     threads: 1
     resources: mem_mb = 4096
-    params: tmp_bam = lambda wc: "/tmp/{wc.sample}.bam"
+    params: tmp_bam = lambda wc: "/tmp/{s}.bam".format(s=wc.sample)
     singularity:
         "shub://NIH-HPC/snakemake-class:latest"
     shell:

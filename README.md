@@ -13,7 +13,7 @@ On the NIH HPC systems start an interactive session and clone the repository:
 ```
 user@headnode> sinteractive --cpus-per-task=12 --mem=24g --gres=lscratch:20
 ...
-user@cn1234> module load singularity snakemake hisat2
+user@cn1234> module load singularity snakemake hisat
 user@cn1234> cd /data/$USER # or whereever you'd like the class directory to be
 user@cn1234> git clone https://github.com/NIH-HPC/snakemake-class.git
 user@cn1234> cd snakemake-class
