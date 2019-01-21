@@ -59,7 +59,7 @@ rule fetch_container:
         module load singularity
         # for some reason pulling to subdir does not work for other users...
         cd {CONTAINER_DIR}
-        singularity pull -n {CONTAINER_NAME} {CONTAINER_URL}
+        singularity pull {CONTAINER_NAME} {CONTAINER_URL}
         """
 
 rule wrapper:
