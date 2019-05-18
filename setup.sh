@@ -9,7 +9,7 @@ module load singularity || fail "*** Please run the setup script in an sinteract
 module load snakemake || fail "Could not load snakemake module"
 
 snakemake --use-singularity \
-    --singularity-args '-B $PWD:/data --pwd /data' \
+    --singularity-args '-B $PWD:/data' \
     --singularity-prefix=00container setup
 if [[ $? -eq 0 ]]; then
     cat <<EOF
