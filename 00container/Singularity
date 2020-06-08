@@ -85,7 +85,7 @@ rm -f subread-${rver}-Linux-x86_64.tar.gz
 mkdir /data /resources
 
 # clean up so image can be shrunk
-conda clean --all --yes
+conda clean -pt --yes
 apt-get clean
 
 # set up the environment for the container
