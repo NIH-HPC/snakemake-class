@@ -1,19 +1,16 @@
 BootStrap: docker
-From: debian:stretch-slim
+From: centos:7
 
 %labels
-CONTAINER_VERSION=0.4
+CONTAINER_VERSION=0.5
 
 ################################################################################
 %post
 ################################################################################
 
 # basic packages
-cat > /etc/locale.gen <<EOF
-en_US.UTF-8 UTF-8
-EOF
-apt-get update
-apt-get -y install locales zip wget bzip2
+yum update -y
+yum install -y zip wget bzip2
 
 # conda installation
 mkdir -p /opt
@@ -22,51 +19,42 @@ wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.
 bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda
 . /opt/conda/etc/profile.d/conda.sh
 conda update --all --yes --quiet -n base
+conda install --yes -c conda-forge mamba
 
 # conda environment
-cat <<END_OF_ENV > rnaseq_env.yml
-name: rnaseq
-channels:
-  -  bioconda
-  -  conda-forge
-  -  defaults
-dependencies:
-  -  samtools=1.9
-  -  bcftools=1.9
-  -  fastqc=0.11.9
-  -  rseqc=3.0.1
-  -  stringtie=2.1.2
-  -  trimmomatic=0.39
-  -  gffutils
-  -  pysam
-  -  mkl
-  -  qualimap
-  -  r-base=4.0.0
-  -  bioconductor-deseq2
-  -  bioconductor-edger
-  -  bioconductor-rsamtools
-  -  r-tidyverse
-prefix: /opt/conda/envs/rnaseq
-END_OF_ENV
+mamba create -n rnaseq
+conda activate rnaseq
+conda config --env --set channel_priority strict
+conda config --env --add channels bioconda
+conda config --env --add channels conda-forge
+mamba install -qy \
+  samtools=1.10 \
+  bcftools=1.10 \
+  fastqc=0.11.9 \
+  rseqc=3.0.1 \
+  stringtie=2.1.4 \
+  trimmomatic=0.39 \
+  hisat2=2.2.1 \
+  gffutils \
+  blas=*=openblas \
+  qualimap \
+  'r-base>=4' \
+  bioconductor-deseq2 \
+  bioconductor-edger \
+  bioconductor-rsamtools \
+  r-tidyverse
 
-# create the rnaseq environment
-conda env create --quiet -n rnaseq -f rnaseq_env.yml
+
 # $SINGULARITY_ENVIRONMENT points to an environment file in /.singularity.d/env with high precedence
 printf 'PATH="${PATH}:/opt/conda/envs/rnaseq/bin"\n' >> $SINGULARITY_ENVIRONMENT
 
 
-###
-### install hisat2, salmon, and subread - all from binary packages
-###
-hver=2.1.0
-wget --quiet ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/downloads/hisat2-${hver}-Linux_x86_64.zip
-mkdir -p hisat2
-unzip hisat2-${hver}-Linux_x86_64.zip -d hisat2
-mv hisat2/hisat2-${hver} hisat2/${hver}
-printf 'PATH="/opt/hisat2/%s:/opt/hisat2/%s/scripts:${PATH}"\n' "$hver" >> $SINGULARITY_ENVIRONMENT
-rm -f hisat2-${hver}-Linux_x86_64.zip
 
-sver=1.2.1
+###
+### install salmon, and subread from binary packages
+###
+
+sver=1.4.0
 wget --quiet https://github.com/COMBINE-lab/salmon/releases/download/v${sver}/salmon-${sver}_linux_x86_64.tar.gz
 mkdir -p salmon/${sver}
 tar -xzf salmon-${sver}_linux_x86_64.tar.gz -C salmon/${sver} --strip-components=1
@@ -86,7 +74,7 @@ mkdir /data /resources
 
 # clean up so image can be shrunk
 conda clean -pt --yes
-apt-get clean
+yum clean all
 
 # set up the environment for the container
 ################################################################################
@@ -110,4 +98,3 @@ rnaseq - rnaseq pipeline tools version $CONTAINER_VER
 This container encapsulates tools for RNA-Seq analysis.
 It is intended for creating reproducible pipelines.
 EOF
-

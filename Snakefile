@@ -10,8 +10,8 @@ SAMPLES = ["ERR458495",
            "ERR458887"]
 
 CONTAINER_DIR = "00container"
-CONTAINER_URL = "shub://NIH-HPC/snakemake-class:latest"
-CONTAINER_NAME = "NIH-HPC-snakemake-class-master-latest.simg"
+CONTAINER_URL = "library://wresch/classes/rnaseq:0.5"
+CONTAINER_NAME = "rnaseq.sif"
 
 ###
 ### main driver rule
@@ -57,7 +57,6 @@ rule fetch_container:
     shell: 
         """
         module load singularity
-        # for some reason pulling to subdir does not work for other users...
         cd {CONTAINER_DIR}
         singularity pull {CONTAINER_NAME} {CONTAINER_URL}
         """
@@ -256,7 +255,7 @@ rule make_hisat_index:
             name = "00ref/hisat_index/R64-1-1"
     threads: 2
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.5"
     shell:
         """
         hisat2-build -p {threads} {input} {output.name} \

@@ -8,7 +8,7 @@ function fail() {
 module load singularity || fail "*** Please run the setup script in an sinteractive session ***"
 module load snakemake || fail "Could not load snakemake module"
 
-snakemake --use-singularity \
+snakemake --cores=4 --use-singularity \
     --singularity-args '-B $PWD:/data' \
     --singularity-prefix=00container setup
 if [[ $? -eq 0 ]]; then

@@ -1,25 +1,29 @@
-[![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg)](https://singularity-hub.org/collections/558) 
 
 Setup - please complete before class
 ================================================================================
 
 
 After cloning this repository, a number of steps (downloading the singularity
-container and data, ...) have to be carried out to complete before starting
-class. This requires that `singularity` and `snakemake` are on the path
-for the setup. Here is an overview of the complete setup:
+container and data, ...) have to be carried out before starting class. This
+requires that `singularity`, `snakemake` and `git`.
 
-On the NIH HPC systems start an interactive session and clone the repository:
+On the NIH HPC systems, start an interactive session, load the snakemake and
+singularity modules, and clone this repository:
+
 ```
 user@headnode> sinteractive --cpus-per-task=12 --mem=24g --gres=lscratch:20
 ...
-user@cn1234> module load singularity snakemake hisat
 user@cn1234> cd /data/$USER # or whereever you'd like the class directory to be
 user@cn1234> git clone https://github.com/NIH-HPC/snakemake-class.git
+user@cn1234> module load snakemake singularity
 user@cn1234> cd snakemake-class
 ```
 
-Then run the setup
+Setup will be different on other systems.
+
+When you are ready run the setup script to fetch data and create all files
+necessary for the exercies.
+
 ```
 user@cn1234> ./setup.sh
 ...
