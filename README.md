@@ -36,3 +36,12 @@ user@cn1234> ./setup.sh
 
 The `Snakefile` in the root directory of the repo takes care of all the setup
 required for class. It also serves as another example for a Snakemake workflow.
+
+## Exercises
+
+* [/exercise00/README.md](Exercise 0 - Singularity refresher)
+* [/exercise01/README.md](Exercise 1 - Basic snakemake rules)
+* [/exercise02/README.md](Exercise 2 - Parallelizing pipelines)
+* [/exercise03/README.md](Exercise 3 - Adding more rules)
+* [/exercise04/README.md](Exercise 4 - Running on a HPC cluster)
+* [/exercise05/README.md](Exercise 5 - Visualizing workflows)
