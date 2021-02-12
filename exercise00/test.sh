@@ -1,6 +1,6 @@
 #! ./rnaseq
 
-which hisat2
+command -v hisat2
 echo "--------------------"
-which salmon
+command -v salmon
 echo "--------------------"

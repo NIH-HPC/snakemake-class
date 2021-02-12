@@ -3,60 +3,74 @@
 This is a brief reminder of how to use singularity containers. For more detail
 see the materials for the companion
 [Singularity class](https://github.com/NIH-HPC/Singularity-Tutorial) or the
-[Singularity documentation](http://singularity.lbl.gov/quickstart).
+[Singularity documentation](https://sylabs.io/guides/latest/user-guide/).
 
-The container used in the exercises and its definition file are located in the
-`00container` directory in the root of the repository:
+The container used in the exercises is `library://wresch/classes/rnaseq` and
+should have also been downloaded locally if setup was successful. It can be
+found in the `00container` directory in the root of the repository along with
+its definition file:
 
 ```
 REPO_ROOT/00container/
-|-- [wresch   1.0G]  NIH-HPC-snakemake-class-master-latest.simg
-`-- [wresch   7.6K]  Singularity
+-rwxr-xr-x 1 user group 1.3G Feb 10 12:45 rnaseq.sif
+-rw-r--r-- 1 user group 3.1K Feb 10 20:02 Singularity
 ```
 
 It contains a number of tools that can be used in an RNA-Seq analysis (hisat2,
-salmon, samtools, subread, R, ...). The repository is linked to the [Singularity
-hub](https://www.singularity-hub.org/) which can generate new builds of containers
-either automatically when changes are pushed to GitHub repo or manually on
-request. The container can be pulled from Singularity hub with
+salmon, samtools, subread, R, ...). If you need to fetch the container locally you
+can do so with
 
 ```console
-user@cn1234> #No need to run this
-user@cn1234> singularity pull shub://NIH-HPC/snakemake-class
+user@cn1234> singularity pull library://wresch/classes/rnaseq
 ```
 
 However, the setup script already took care of doing this, so there is not
 need to run this command again.
 
-#### Recap of basic commands
+### Recap of basic commands
 
-Make sure this and all the following exercises are done within an interactive
-session with the singularity and snakemake modules loaded:
+If you are running this on the NIH HPC cluster, please make sure this and all
+the following exercises are done within an interactive session with the
+singularity and snakemake modules loaded:
 
 ```console
 loginnode$ sinteractive --cpus-per-task=12 --gres=lscratch:20 --mem=24g
 ...
 user@cn1234> module load singularity snakemake
-[+] Loading singularity 2.4.1
-[+] Loading snakemake 4.5.1
+[+] Loading singularity 3.7.1
+[+] Loading snakemake 5.24.1
 user@cn1234>
 ```
 
-Singularity containers are executable. When executed in this way, the
-runscript inside the container is executed, which in this case prints a simple
-message.
+singularity allows you to create and use single file containers. You can run
+programs inside a container transparently: IO can be redirected; arguments
+passed, and files accessed; Ports on the host system from within a container
+and a user retains their identity inside the container.
+
+The singularity command includes many subcommands and options. use
+
+```console
+user@cn1234> singularity help
+```
+
+to get more information about this tool which is the main way of interacting
+with singularity containers.
+
+Singularity containers, in addition to being used with the singularity command,
+are alse executable. When executed in this way, the runscript inside the
+container is executed, which in our example prints a simple message.
 
 ```console
 user@cn1234> # define a variable containing the full path to the container for connvenience
-user@cn1234> container=$(cd .. && pwd)/00container/NIH-HPC-snakemake-class-master-latest.simg
+user@cn1234> container=$(cd .. && pwd)/00container/rnaseq.sif
 user@cn1234> $container
 ------------------------------------------------------------
-rnaseq - rnaseq pipeline tools version 0.3
+rnaseq - rnaseq pipeline tools version 0.5
 ------------------------------------------------------------
 ...
 ```
 
-`singularity exec` is used to execute other programs inside the container
+`singularity exec` is used to execute programs inside the container
 
 ```console
 user@cn1234> singularity exec $container samtools index
@@ -84,8 +98,9 @@ user@cn1234>
 ```
 
 For the workflows in later examples to function, we will bind mount the local
-directory under `/data` in the container and change the starting working
-directory to `/data` within the container to start in the same directory:
+directory under `/data` using `-B path_outside:path_inside` and change the
+starting working directory to `/data` within the container with `--pwd` to
+start in the same directory:
 
 ```console
 user@cn1234> ls -lh
@@ -94,7 +109,8 @@ total 16K
 -rwxr-xr-x 1 user group  751 Feb  5 19:30 rnaseq
 -rwxr-x--- 1 user group   95 Feb  5 14:13 test.sh
 
-user@cn1234> singularity shell -B $PWD:/data --pwd /data $container
+user@cn1234> singularity shell -B $PWD:/data   --pwd /data $container
+#                 bind mount ---^----------^   ^---^-- starting directory
 Singularity> pwd
 /data
 Singularity> ls -lh
@@ -104,7 +120,7 @@ total 16K
 -rwxr-x--- 1 user group   95 Feb  5 14:13 test.sh
 ```
 
-#### Wrapper script
+### Wrapper script
 
 `rnaseq` is an example script that uses the concepts introduced above to create a
 wrapper for our Singularity container. It takes care to bind the current
@@ -122,16 +138,16 @@ Usage:  bash [GNU long option] [option] ...
 ...
 
 user@cn1234> ./rnaseq -c "samtools --version"
-samtools 1.5
+samtools 1.10
 ```
 
 Now, take for example the following `test.sh` script:
 
 ```bash
 #! ./rnaseq
-which hisat2
+command -v hisat2
 echo "-------------"
-which salmon
+command -v salmon
 echo "-------------"
 ```
 
@@ -140,17 +156,17 @@ included in the path by default:
 
 ```console
 user@cn1234> bash test.sh
-which: no hisat2 in (...)
-which: no salmon in (...)
+--------------------
+--------------------
 ```
 
 However, execution with the wrapper works:
 
 ```console
 user@cn1234> ./rnaseq test.sh
-/opt/hisat2-2.1.0/hisat2
+/opt/conda/envs/rnaseq/bin/hisat2
 --------------------
-/opt/Salmon-latest_linux_x86_64/bin/salmon
+/opt/salmon/1.4.0/bin/salmon
 --------------------
 ```
 
@@ -160,8 +176,8 @@ the container since the `#!` line used the wrapper script:
 ```console
 user@cn1234> chmod +x test.sh
 user@cn1234> ./test.sh
-/opt/hisat2-2.1.0/hisat2
+/opt/conda/envs/rnaseq/bin/hisat2
 --------------------
-/opt/Salmon-latest_linux_x86_64/bin/salmon
+/opt/salmon/1.4.0/bin/salmon
 --------------------
 ```
