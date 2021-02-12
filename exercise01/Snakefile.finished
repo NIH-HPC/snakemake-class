@@ -16,7 +16,7 @@ rule hisat2:
     output: bam = "02aln/{sample}.bam",
             bai = "02aln/{sample}.bam.bai"
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.5"
     shell:
         """
         hisat2 -k 4 -x {input.idx} -U {input.fq} --threads 4 \

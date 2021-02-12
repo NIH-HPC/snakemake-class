@@ -23,6 +23,7 @@ rule setup:
            expand("00fastq/{sample}.fastq.gz", sample=SAMPLES),
            expand("exercise{n:02d}/config.yml", n=range(4, 7)),
            "exercise00/rnaseq",
+           "exercise01/rnaseq",
            "00ref/R64-1-1.fa", 
            "00ref/hisat_index/R64-1-1", 
            "00ref/R64-1-1.cdna_nc.fa", 
@@ -45,7 +46,7 @@ rule clean:
         rm -rf 00ref 00fastq
         rm -rf exercise*/00* exercise*/rnaseq exercise*/config.yml
         rm -rf exercise*/02aln exercise*/04count
-        rm -rf exercise*/slurm-* exercise*/.snakemake
+        rm -rf exercise*/slurm-* exercise*/.snakemake ./.snakemake
         """
 
 ###
