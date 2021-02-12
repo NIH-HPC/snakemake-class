@@ -39,9 +39,9 @@ required for class. It also serves as another example for a Snakemake workflow.
 
 ## Exercises
 
-* [Exercise 0 - Singularity refresher](/exercise00/README.md)
-* [Exercise 1 - Basic snakemake rules](/exercise01/README.md)
-* [Exercise 2 - Parallelizing pipelines](/exercise02/README.md)
-* [Exercise 3 - Adding more rules](/exercise03/README.md)
-* [Exercise 4 - Running on a HPC cluster](/exercise04/README.md)
-* [Exercise 5 - Visualizing workflows](/exercise05/README.md)
+* [Exercise 0 - Singularity refresher](/exercise00/)
+* [Exercise 1 - Basic snakemake rules](/exercise01/)
+* [Exercise 2 - Parallelizing pipelines](/exercise02/)
+* [Exercise 3 - Adding more rules](/exercise03/)
+* [Exercise 4 - Running on a HPC cluster](/exercise04/)
+* [Exercise 5 - Visualizing workflows](/exercise05/)
