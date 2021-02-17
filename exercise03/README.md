@@ -5,7 +5,7 @@ for all 6 samples. The starting point, as before, is `Snakefile` and an example
 of a finished workflow is provided in `Snakefile.finished`
 
 
-#### Add the featureCounts rule
+### Add the featureCounts rule
 
 `featureCounts` from the subread package is used to count the number of reads
 from each alignment mapping to each gene. It's **inputs** are a bam file and
@@ -23,7 +23,7 @@ rule count:
     threads: 2
     resources: mem_mb = 4096
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.5"
     shell:
         """
         featureCounts -a {input.annot} -o {output} \
@@ -43,7 +43,7 @@ rule all:
            "04count/ERR458502"
 ```
 
-#### Extend the pipeline to include all 6 samples
+### Extend the pipeline to include all 6 samples
 
 Snakefiles are essentially python and arbitrary python code can be used in
 many places. Let's take advantage of this and extend the workflow to include
