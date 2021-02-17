@@ -24,7 +24,7 @@ rule hisat2:
             bai = "02aln/{sample}.bam.bai"
     threads: 4
     singularity:
-        "library://wresch/classes/rnaseq:0.5"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         mkdir -p 02aln
@@ -61,7 +61,7 @@ rule hisat2:
     threads: 4
     resources: mem_mb = 6144
     singularity:
-        "library://wresch/classes/rnaseq:0.5"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         mkdir -p 02aln
@@ -98,7 +98,7 @@ rule hisat2:
     params: hisat = "-k 4"
     resources: mem_mb = 6144
     singularity:
-        "library://wresch/classes/rnaseq:0.5"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         mkdir -p 02aln

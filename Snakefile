@@ -10,7 +10,7 @@ SAMPLES = ["ERR458495",
            "ERR458887"]
 
 CONTAINER_DIR = "00container"
-CONTAINER_URL = "library://wresch/classes/rnaseq:0.5"
+CONTAINER_URL = "library://wresch/classes/rnaseq:0.6"
 CONTAINER_NAME = "rnaseq.sif"
 
 ###
@@ -46,7 +46,8 @@ rule clean:
         rm -rf 00ref 00fastq
         rm -rf exercise*/00* exercise*/rnaseq exercise*/config.yml
         rm -rf exercise*/02aln exercise*/04count
-        rm -rf exercise*/slurm-* exercise*/.snakemake ./.snakemake
+        rm -rf exercise*/slurm-* exercise*/.snakemake
+        rm -rf exercise06/.cache exercise06/.java exercise06/log.txt
         """
 
 ###
@@ -256,7 +257,7 @@ rule make_hisat_index:
             name = "00ref/hisat_index/R64-1-1"
     threads: 2
     singularity:
-        "library://wresch/classes/rnaseq:0.5"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         hisat2-build -p {threads} {input} {output.name} \

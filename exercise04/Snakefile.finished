@@ -24,7 +24,7 @@ rule count:
     threads: 2
     resources: mem_mb = 4096
     singularity:
-        "library://wresch/classes/rnaseq:0.5"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         featureCounts -a {input.annot} -o {output} \
@@ -41,7 +41,7 @@ rule hisat2:
     resources: mem_mb = 6144
     params: hisat = "-k 4"
     singularity:
-        "library://wresch/classes/rnaseq:0.5"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         hisat2 {params.hisat} -x {input.idx} -U {input.fq} --threads {threads} \

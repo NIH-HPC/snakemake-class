@@ -10,7 +10,7 @@ CONTAINER_VERSION=0.5
 
 # basic packages
 yum update -y
-yum install -y zip wget bzip2
+yum install -y zip wget bzip2 which vim-minimal
 
 # conda installation
 mkdir -p /opt
@@ -36,6 +36,8 @@ mamba install -qy \
   trimmomatic=0.39 \
   hisat2=2.2.1 \
   gffutils \
+  ucsc-bigwigtowig \
+  ucsc-wigtobigwig \
   blas=*=openblas \
   qualimap \
   'r-base>=4' \

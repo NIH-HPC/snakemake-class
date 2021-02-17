@@ -6,6 +6,7 @@ exercise*/03track
 exercise*/04count
 exercise*/05salmon
 00container/*.simg
+00container/*.sif
 */config.yml
 .snakemake
 .*swp

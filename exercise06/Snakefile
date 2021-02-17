@@ -37,14 +37,14 @@ rule fastqc:
     threads: 1
     resources: mem_mb = 2048
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         odir=01qc/{wildcards.sample}_fastqc
         fastqc -o 01qc --extract {input}
-        mv \$odir/summary.txt {output.summary}
-        mv \$odir/fastqc_data.txt {output.data}
-        rm -rf \$odir
+        mv $odir/summary.txt {output.summary}
+        mv $odir/fastqc_data.txt {output.data}
+        rm -rf $odir
         """
 
 rule hisat2:
@@ -56,7 +56,7 @@ rule hisat2:
     resources: mem_mb = 6144
     params: hisat = "-k 4"
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         hisat2 {params.hisat} -x {input.idx} -U {input.fq} --threads {threads} \
@@ -86,7 +86,7 @@ rule rseqc:
     resources: mem_mb = 4096
     params: tmp_bam = lambda wc: "/tmp/{s}.bam".format(s=wc.sample)
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         cp {input.bam} {input.bai} /tmp
@@ -105,7 +105,7 @@ rule count:
     threads: 2
     resources: mem_mb = 4096
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         featureCounts -a {input.annot} -o {output} \
@@ -137,7 +137,7 @@ rule salmon_index:
     threads: 4
     resources: mem_mb = 6144
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         rm -rf {output}
@@ -147,11 +147,11 @@ rule salmon_index:
 rule salmon_quant:
     input: fq = "00fastq/{sample}.fastq.gz",
            idx = "00ref/salmon_index"
-    output: "05salmon/{sample}"
+    output: "05salmon/{sample}/quant.sf"
     threads: 4
     resources: mem_mb = 4048
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         salmon quant -i {input.idx} -l U -r <(zcat {input.fq}) \

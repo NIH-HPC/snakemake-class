@@ -23,7 +23,7 @@ rule count:
     threads: 2
     resources: mem_mb = 4096
     singularity:
-        "library://wresch/classes/rnaseq:0.5"
+        "library://wresch/classes/rnaseq:0.6"
     shell:
         """
         featureCounts -a {input.annot} -o {output} \

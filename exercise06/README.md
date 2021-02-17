@@ -1,8 +1,9 @@
 
 ## Visualizing a larger workflow
 
-This `Snakefile` includes a whole RNA-Seq workflow from fastq to counts. Please note that this
-workflow is meant for illustration and should not be considered a best practices workflow.
+This `Snakefile` includes a whole RNA-Seq workflow from fastq to counts. Please
+note that this workflow is meant for illustration and should not be considered
+a best practices workflow.
 
 With the profile and the config files, this wokflow can be run on the cluster with
 
