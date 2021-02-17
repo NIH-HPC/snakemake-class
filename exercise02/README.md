@@ -4,7 +4,7 @@
 parameters for tools used. Run workflow in parallel. Use the file `Snakefile` as a starting
 point. `Snakefile.finished` is a possible solution.
 
-#### Threads
+### Threads
 
 In order to run individual tasks in parallel, snakemake needs to know how many
 CPUs each rule would like to use and how many CPUs are available in total. In
@@ -24,7 +24,7 @@ rule hisat2:
             bai = "02aln/{sample}.bam.bai"
     threads: 4
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.5"
     shell:
         """
         mkdir -p 02aln
@@ -38,12 +38,11 @@ rule hisat2:
 Now, the workflow can run in parallel:
 
 ```console
-user@cn1234> snakemake --cores 8 --use-singularity \
-    --singularity-args '-B $PWD:/data --pwd /data' \
-    --singularity-prefix=../00container
+user@cn1234> snakemake --cores 8 --use-singularity --singularity-prefix=../00container \
+    --singularity-args '-B $PWD:/data --pwd /data'
 ```
 
-#### Resources
+### Resources
 
 In the resources section arbitrary resources (other than threads) required by
 the rule can be specified. This can be used to specify, for example, the amount
@@ -62,7 +61,7 @@ rule hisat2:
     threads: 4
     resources: mem_mb = 6144
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.5"
     shell:
         """
         mkdir -p 02aln
@@ -73,16 +72,21 @@ rule hisat2:
         """
 ```
 
+Note that there are different ways in which resources such as memory can
+be specified. For example cluster-specific resources could also be specified
+in a separate config file which will be discussed later.
+
 ```console
 user@cn1234> snakemake --cores 8 --resources mem_mb=12288 --use-singularity \
     --singularity-args '-B $PWD:/data --pwd /data' \
     --singularity-prefix=../00container
 ```
 
-#### Rule parameters
+### Rule parameters
 
-The `params` section of a rule is a good place for storing, for example, arguments
-to commands used in the shell commands. For example:
+The `params` section of a rule is a good place for storing arguments
+to commands used in the shell commands, tool versions, and other non-input
+parameters. For example:
 
 ```python
 rule hisat2:
@@ -94,7 +98,7 @@ rule hisat2:
     params: hisat = "-k 4"
     resources: mem_mb = 6144
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.5"
     shell:
         """
         mkdir -p 02aln
@@ -105,15 +109,17 @@ rule hisat2:
         """
 ```
 
-#### Profiles
+### Profiles
 
 It can get pretty pretty cumbersome to re-type all the parameters for
 snakemake. Snakemake profiles can set default values for command line
 parameters.  A profile is a directory containing at a minimum a config.yaml
 with keys corresponding to command line flags. A profile specified by
 name on the command line is search for in `$HOME/.config/snakemake`. Alternatively
-profiles can be specified by path. There is a `slurm` profile available in
-this directory which can be used to run the workflow:
+profiles can be specified by path. There is a simple profile available in
+this directory which specifies all the required singularity settings so
+we don't have to include them on the command line any more. Note that
+profiles can be used to do much more sophisticated configuration.
 
 ```console
 user@cn1234> cat myprofile/config.yaml

@@ -109,12 +109,16 @@ By default, snakemake ignores the `singularity` directive. The
 `--use-singularity` option is required to enable use of singularity and the
 `singularity` executable has to be available on the path. Additional
 singularity options can be passed with `--singularity-args`. We will use this
-to pass in bind mount options. Finally, we want to store containers in the
+to pass in bind mount options. Finally, we can store containers in the
 `00container` directory in the root dir of the repo using the
-`--singularity-prefix` option:
+`--singularity-prefix` option. If `--singularity-prefix` is not specified
+the container is stored in the local `.singularity` directory which may
+be desirable. However, since we use the same container in multiple
+exercises, we store it in a shared location.
 
 ```console
-user@cn1234> snakemake --cores 8 --use-singularity 02aln/ERR458502.bam
+user@cn1234> snakemake --cores 8 --use-singularity 02aln/ERR458502.bam \
+    --singularity-prefix=../00container
 
 Building DAG of jobs...
 Using shell: /usr/bin/bash
@@ -146,15 +150,13 @@ Complete log: /spin1/users/user/class_materials/snakemake-class/exercise01/.snak
 
 ```
 
-The singularity container will be cached in the .snakemake subdirectory
-of the working directory.
-
 If we ask snakemake to produce the same output file again, it recognizes
 that nothing has to be done because the output files are newer than
 the input files:
 
 ```console
-user@cn1234> snakemake --cores 8 --use-singularity 02aln/ERR458502.bam
+user@cn1234> snakemake --cores 8 --use-singularity 02aln/ERR458502.bam \
+    --singularity-prefix=../00container
 Building DAG of jobs...
 Nothing to be done.
 ```
@@ -172,7 +174,8 @@ output_file     date    rule    version log-file(s)     status  plan
 02aln/ERR458502.bam.bai Fri Feb 12 10:50:49 2021        hisat2  -               updated input files   update pending
 
 
-user@cn1234> snakemake --cores 8 --use-singularity 02aln/ERR458502.bam
+user@cn1234> snakemake --cores 8 --use-singularity 02aln/ERR458502.bam \
+    --singularity-prefix=../00container
 Building DAG of jobs...
 Using shell: /bin/bash
 Provided cores: 1
@@ -226,6 +229,7 @@ alignments:
 
 ```console
 user@cn1234> snakemake --cores 8 --use-singularity \
+    --singularity-prefix=../00container \
     02aln/ERR458495.bam 02aln/ERR458502.bam
 ```
 
@@ -245,7 +249,7 @@ rules to generate those input files and, in this case, finds that hisat2 can gen
 both of the input files and executes the rule twice with the different input files:
 
 ```console
-user@cn1234> snakemake --use-singularity --cores=8 all
+user@cn1234> snakemake --use-singularity --cores=8 --singularity-prefix=../00container all
 Building DAG of jobs...
 Using shell: /bin/bash
 Provided cores: 1
