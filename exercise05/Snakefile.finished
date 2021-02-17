@@ -29,7 +29,7 @@ rule count:
     threads: 2
     resources: mem_mb = 4096
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.5"
     shell:
         """
         featureCounts -a {input.annot} -o {output} \
@@ -45,7 +45,7 @@ rule hisat2:
     resources: mem_mb = 6144
     params: hisat = "-k 4"
     singularity:
-        "shub://NIH-HPC/snakemake-class:latest"
+        "library://wresch/classes/rnaseq:0.5"
     shell:
         """
         hisat2 {params.hisat} -x {input.idx} -U {input.fq} --threads {threads} \

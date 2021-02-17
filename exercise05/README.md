@@ -1,20 +1,22 @@
 ## Parallelizing workflows across the cluster
 
-**Goal:** Run the workflow in parallel by submitting some jobs to the cluster as batch jobs. As before,
-use `Snakefile` as a starting point.
+**Goal:** Run the workflow in parallel by submitting some jobs to the cluster
+as batch jobs. As before, use `Snakefile` as a starting point.
 
-The changes required to the Snakefile in this case are minimal. We explicitly declare which rules
-are to be executed on the same host as the main snakemake process even if submitting other jobs as
-cluster batch jobs. At the top level of the Snakefile:
+The changes required to the Snakefile in this case are minimal. We explicitly
+declare which rules are to be executed on the same host as the main snakemake
+process even if submitting other jobs as cluster batch jobs. At the top level
+of the Snakefile:
 
 ```python
 localrules: all, clean
 ```
 
-Snakemake can be taught to submit batch jobs by providing a template string that has access to
-many of the properties of jobs (threads, resources, params) specified in the Snakefile, as well
-as parameters defined in a cluster config file.  As for the general config file, the cluster
-config file can be in yaml or json format. Here is an example that will work on biowulf:
+Snakemake can be taught to submit batch jobs by providing a template string
+that has access to many of the properties of jobs (threads, resources, params)
+specified in the Snakefile, as well as parameters defined in a cluster config
+file.  As for the general config file, the cluster config file can be in yaml
+or json format. Here is an example that will work on biowulf:
 
 ```yaml
 __default__:
@@ -25,12 +27,16 @@ hisat2:
     partition: norm
 ```
 
-It makes sense to use this file for cluster specific settings such as partitions and local
-scratch and runtimes. This file can contain a special `__default__` entry whose values will
-be used for any rules that do not explicitly specify values for the keys in question. In this
-example, hisat would be run on the norm partition with a walltime of 10 min and 10GB of
-lscratch - the latter two from the `__default__` section since they are not defined for the
-hisat2 rule.
+Note: cluster config files are getting deprecated. I will update these materials
+to make more extensive use of profiles (and a biowulf profile in particular).
+
+It makes sense to use this file for cluster specific settings such as
+partitions and local scratch and runtimes. This file can contain a special
+`__default__` entry whose values will be used for any rules that do not
+explicitly specify values for the keys in question. In this example, hisat
+would be run on the norm partition with a walltime of 10 min and 10GB of
+lscratch - the latter two from the `__default__` section since they are not
+defined for the hisat2 rule.
 
 When submitting to the cluster, a number of other of other options are important:
 
@@ -50,9 +56,9 @@ When submitting to the cluster, a number of other of other options are important
 :information_source: Please **do not run snakemake workflows on the login node**, 
 even if submitting jobs as batch jobs. Run the main process as a 
 batch job itself or, if the workflow runs quickly enough, from an sinteractive
-session</div>
+session
 
-So in our example (after adding the localrules declaration described earlier):
+So in our example (after adding the `localrules` declaration described earlier):
 
 ```console
 user@cn1234> snakemake --jobs 6 --profile ./myprofile --cluster-config=cluster.yml \
