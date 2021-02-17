@@ -5,7 +5,7 @@ a configuration file in yaml. As in the other exercises, the starting
 file is `Snakemake` and the final product is `Snakemake.finished`.
 
 Snakemake workflows can make use of configuration files in [yaml](yaml.org)
-or [json](https://www.json.org/) format. The configuration file is specified
+or [json](https://www.json.org/) format. The configuration file can be specified
 at the top level of the Snakefile. For example:
 
 ```python
@@ -14,6 +14,8 @@ configfile: "config.yml"
 rule all:
     input: expand("04count/{s}", s=samples)
 ```
+
+or on the command line.
 
 The config file is parsed and made available as a global dictionary named
 `config`. So, given the following config file
