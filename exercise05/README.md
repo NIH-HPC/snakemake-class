@@ -15,30 +15,40 @@ localrules: all, clean
 Snakemake can be taught to submit batch jobs by providing a template string
 that has access to many of the properties of jobs (threads, resources, params)
 specified in the Snakefile, as well as parameters defined in a cluster config
-file.  As for the general config file, the cluster config file can be in yaml
-or json format. Here is an example that will work on biowulf:
+file. This can be done with plain snakemake. However, there is a Biowulf-specific
+[profile](https://github.com/NIH-HPC/snakemake_profile) that takes care of of job submission
+and job status checking without taxing the slurm scheduler. Rather than refining
+the profile from the previous exercise, we will switch to the Biowulf profile.
+Instead of specifying the profile manually every time we run snakemake
+we'll set an environment variable
 
-```yaml
-__default__:
-    partition: quick
-    time: 10
-    extra: "--gres=lscratch:10"
-hisat2:
-    partition: norm
+```console
+user@cn1234> export SNAKEMAKE_PROFILE="$(cd .. && pwd)/bwprofile"
+user@cn1234> cat $SNAKEMAKE_PROFILE/config.yaml
+restart-times: 0
+jobscript: slurm_jobscript.sh
+cluster: bw_submit.py
+cluster-status: bw_status.py
+cluster-cancel: scancel
+max-jobs-per-second: 1
+max-status-checks-per-second: 1
+local-cores: 4
+latency-wait: 240
+jobs: 50
+keep-going: True
+rerun-incomplete: True
+# note that the space before the -- is necessary - otherwise cluster
+# execution failes as --cleanenv gets interpreted as a new option since
+# snakemake passes this on as --singularity-args "--cleanenv" - i.e. without
+# a `=`
+singularity-args: " --cleanenv"
+use-singularity: true
+singularity-prefix: /data/user/snakemake-class/00container
 ```
 
-Note: cluster config files are getting deprecated. I will update these materials
-to make more extensive use of profiles (and a biowulf profile in particular).
-
-It makes sense to use this file for cluster specific settings such as
-partitions and local scratch and runtimes. This file can contain a special
-`__default__` entry whose values will be used for any rules that do not
-explicitly specify values for the keys in question. In this example, hisat
-would be run on the norm partition with a walltime of 10 min and 10GB of
-lscratch - the latter two from the `__default__` section since they are not
-defined for the hisat2 rule.
-
-When submitting to the cluster, a number of other of other options are important:
+The last line will be specific to your class directory. Use `snakemake --help`
+to understand the different options specified in the profile.
+In brief, here are some of the most relevant options:
 
   - `-k`, `--keep-going`: By default, snakemake will quit if a job fails (after waiting
     for running jobs to finish. `-k` will make snakemake continue with independent jobs.
@@ -58,26 +68,38 @@ even if submitting jobs as batch jobs. Run the main process as a
 batch job itself or, if the workflow runs quickly enough, from an sinteractive
 session
 
-So in our example (after adding the `localrules` declaration described earlier):
+So in our example (after adding the `localrules` declaration described earlier and
+setting `$SNAKEMAKE_PROFILE`):
 
 ```console
-user@cn1234> snakemake --jobs 6 --profile ./myprofile --cluster-config=cluster.yml \
-    -w 120 -k --local-cores=10 --max-jobs-per-second 1 \
-    --cluster="sbatch -c {threads} --mem={resources.mem_mb} --partition={cluster.partition} \
-        --time={cluster.time} {cluster.extra}"
+user@cn1234> snakemake 
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cluster nodes: 50
+Job stats:
+job       count
+------  -------
+all           1
+count         6
+hisat2        6
+total        13
+
+Select jobs to execute...
+
+[Thu Sep 26 18:48:20 2024]
+rule hisat2:
+    input: 00fastq/ERR458495.fastq.gz, 00ref/hisat_index/R64-1-1
+    output: 02aln/ERR458495.bam, 02aln/ERR458495.bam.bai
+    jobid: 8
+    reason: Missing output files: 02aln/ERR458495.bam
+    wildcards: sample=ERR458495
+    threads: 4
+    resources: mem_mb=6144, mem_mib=5860, disk_mb=1000, disk_mib=954, tmpdir=<TBD>
+
+hisat2: submission command "sbatch --cpus-per-task=4 --mem=6144 --time=120 --gres=lscratch:1 --output=logs/hisat2-%j.out --partition=quick /spin1/users/wresch/code/class_materials/snakemake-class/exercise05/.snakemake/tmp.cxnvsixj/snakejob.hisat2.8.sh
+Submitted job 8 with external jobid '36450266'.
+
+...
 ```
 
 
-And as before, most of these can be incorporated into a profile file for convenience:
-```console
-user@cn1234> cat myprofile/config.yaml
-use-singularity: true
-singularity-prefix: ../00container
-singularity-args: '-B $PWD:/data,/lscratch/$SLURM_JOB_ID:/tmp --pwd /data'
-max-jobs-per-second: 1
-latency-wait: 120
-keep-going: true
-cluster: 'sbatch -c {threads} --mem={resources.mem_mb} --partition={cluster.partition} --time={cluster.time} {cluster.extra}'
-
-user@cn1234> snakemake --profile ./myprofile --jobs 6 --cluster-config=cluster.yml --local-cores 10
-```
