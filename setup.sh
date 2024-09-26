@@ -13,14 +13,17 @@ module load singularity || fail "*** Please run the setup script in an sinteract
 module load snakemake/7 || fail "Could not load snakemake 7 module"
 module load git || fail "Could not load git module"
 
-## fetch the biowulf profile
+## set up all the necessary bind mounts for transparent access to /home, /data, ...
+source /usr/local/current/singularity/app_conf/sing_binds
 
+## fetch the biowulf profile
 if [[ ! -d bwprofile ]]
 then
     info "Fetching snakemake profile for Biowulf from https://github.com/NIH-HPC/snakemake_profile"
     git clone https://github.com/NIH-HPC/snakemake_profile.git bwprofile &> /dev/null \
         || fail "unable to clone profile repo"
     echo "use-singularity: true" >> bwprofile/config.yaml
+    echo "singularity-prefix: $PWD/00container" >> bwprofile/config.yaml
 else
     info "Snakemake profile for biowulf already downloaded"
 fi
