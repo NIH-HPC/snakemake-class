@@ -3,21 +3,24 @@ Setup - please complete before class
 ================================================================================
 
 
-After cloning this repository, a number of steps (downloading the singularity
-container and data, ...) have to be carried out before starting class. This
-requires `singularity`, `snakemake` and `git`.
+After cloning this repository, a number of steps (caching the singularity
+container and data, creating reference files, ...) have to be carried out
+before starting class. This requires `singularity`, `snakemake` and `git`
+and has to be executed on a compute node.
 
 
 
 On the NIH HPC systems, start an interactive session, load the snakemake and
 singularity modules, and clone this repository:
 
-```
+```sh
 user@headnode> sinteractive --cpus-per-task=12 --mem=24g --gres=lscratch:20
 ...
-user@cn1234> cd /data/$USER # or whereever you'd like the class directory to be
+user@cn1234> ## change to a suitable directory somewhere in /data
+user@cn1234> cd /data/$USER
 user@cn1234> git clone https://github.com/NIH-HPC/snakemake-class.git
 user@cn1234> module load snakemake singularity
+user@cn1234> ## the following command sets up all bind paths for singularity
 user@cn1234> source /usr/local/current/singularity/app_conf/sing_binds
 user@cn1234> cd snakemake-class
 ```
