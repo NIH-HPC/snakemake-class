@@ -12,3 +12,5 @@ exercise*/05salmon
 .*swp
 00fastq
 00ref
+logs
+bwprofile
