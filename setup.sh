@@ -40,6 +40,10 @@ then
 	|                                                                              |
 	+------------------------------------------------------------------------------+
 	EOF
+    # create a symlink for the most recent .simg file in 00container
+    pushd 00container
+    latest="$(ls -1 -t *.simg)"
+    rm -f rnaseq.sif && ln -s "${latest}" rnaseq.sif
 else
     cat <<-EOF
 	+------------------------------------------------------------------------------+

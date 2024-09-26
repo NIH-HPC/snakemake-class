@@ -16,6 +16,7 @@ its definition file:
 ```
 REPO_ROOT/00container/
 -rwxr-xr-x 1 user group 1.3G Feb 10 12:45 2354d2ff28bcf0b42c57fae398b4c9b5.simg
+lrwxrwxrwx 1 user group   37 Sep 26 14:31 rnaseq.sif -> 2354d2ff28bcf0b42c57fae398b4c9b5.simg
 -rw-r--r-- 1 user group 3.1K Feb 10 20:02 rnaseq.def
 ```
 
@@ -80,7 +81,7 @@ container is executed, which in our example prints a simple message.
 
 ```console
 user@cn1234> # define a variable containing the full path to the container for connvenience
-user@cn1234> container=$(cd .. && pwd)/00container/2354d2ff28bcf0b42c57fae398b4c9b5.simg
+user@cn1234> container=$(cd .. && pwd)/00container/rnaseq.sif
 user@cn1234> $container
 ------------------------------------------------------------
 rnaseq - rnaseq pipeline tools version 0.8
