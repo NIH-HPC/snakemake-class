@@ -43,7 +43,8 @@ rule clean:
         rm -rf exercise*/00* exercise*/rnaseq exercise*/config.yml
         rm -rf exercise*/02aln exercise*/04count
         rm -rf exercise*/slurm-* exercise*/.snakemake
-        rm -rf exercise06/.cache exercise06/.java exercise06/log.txt
+        rm -rf exercise06/{{.cache,.java,.fontconfig}}
+        rm -rf exercise06/{{01qc,03track,05salmon}}
         """
 
 
