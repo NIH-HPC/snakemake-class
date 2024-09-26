@@ -15,7 +15,7 @@ module load git || fail "Could not load git module"
 
 ## fetch the biowulf profile
 
-if [[ ! -d biowulf_profile ]]
+if [[ ! -d bwprofile ]]
 then
     info "Fetching snakemake profile for Biowulf from https://github.com/NIH-HPC/snakemake_profile"
     git clone https://github.com/NIH-HPC/snakemake_profile.git bwprofile &> /dev/null \
