@@ -30,7 +30,7 @@ rule setup:
            "00ref/chromosomes",
     shell:
         """
-        for ex in exercise*; do
+        for ex in exercise0{{1..6}}; do
             rm -rf $ex/00ref $ex/00fastq
             cp -lr 00ref 00fastq $ex
         done
@@ -39,7 +39,7 @@ rule setup:
 rule clean:
     shell:
         """
-        rm -rf 00ref 00fastq
+        rm -rf 00ref 00fastq logs exercise*/logs
         rm -rf exercise*/00* exercise*/rnaseq exercise*/config.yml
         rm -rf exercise*/02aln exercise*/04count
         rm -rf exercise*/slurm-* exercise*/.snakemake
