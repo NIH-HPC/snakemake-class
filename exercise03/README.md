@@ -23,7 +23,7 @@ rule count:
     threads: 2
     resources: mem_mb = 4096
     singularity:
-        "library://wresch/classes/rnaseq:0.6"
+        "library://wresch/classes/rnaseq:0.8"
     shell:
         """
         featureCounts -a {input.annot} -o {output} \
@@ -34,7 +34,7 @@ rule count:
 Now, since the final output of the pipeline as it is are the count files, the
 `all` rule has to be changed to request the generation of the count files.
 Alignment files don't have to be specified any more b/c snakemake will
-automatically determine that alignments are required to genrate count files.
+automatically determine that alignments are required to generate count files.
 The new `all` rule would therefore be
 
 ```python

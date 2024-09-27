@@ -1,3 +1,5 @@
+#! /bin/bash
+
 fq=$1
 bam=02aln/$(basename $fq .fastq.gz).bam 
 

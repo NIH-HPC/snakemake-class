@@ -8,7 +8,7 @@ a best practices workflow.
 With the profile and the config files, this wokflow can be run on the cluster with
 
 ```console
-user@cn1234> snakemake --profile ./myprofile --jobs 12 --cluster-config=cluster.yml --local-cores 10
+user@cn1234> snakemake
 ```
 
 There are two ways to visualize the workflow. A rulegraph illustrates the relationship of the

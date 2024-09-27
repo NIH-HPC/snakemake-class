@@ -11,11 +11,19 @@ indentation matters and tabs and spaces can't be mixed. Code in these examples
 uses spaces - no tabs. Please adjust your editors accordingly.
 
 The script `aln.sh` takes a fastq file as an argument and aligns it to the
-S. cerevisiae genome. We use the tools installed in the container via the
-rnaseq wrapper introduced in the previous example
+S. cerevisiae genome. We use the tools installed in the container that
+was downloaded during the setup. If you haven't done so in the previous
+exercise please set up all the required bind mounts with
+
+```console
+user@cn1234> source /usr/local/current/singularity/app_conf/sing_binds
+```
+
+Then run the script for one sample
 
 ```console
 user@cn1234> cat aln.sh
+#! /bin/bash
 
 fq=$1
 bam=02aln/$(basename $fq .fastq.gz).bam 
@@ -27,7 +35,8 @@ hisat2 -k 4 -x $idx -U $fq --threads 4 \
   > $bam
 samtools index $bam
 
-user@cn1234> ./rnaseq aln.sh 00fastq/ERR458495.fastq.gz
+user@cn1234> export CONTAINER="$(cd .. && pwd)/00container/rnaseq.sif"
+user@cn1234> singularity exec "$CONTAINER" ./aln.sh 00fastq/ERR458495.fastq.gz
 
 1066501 reads; of these:
   1066501 (100.00%) were unpaired; of these:
@@ -66,26 +75,48 @@ rule hisat2:
 When snakemake is asked to create a specific file it searches for a rule with
 an output pattern that matches the file name and then executes the rule, which
 in this example is shell code. The input and output file names for the specific
-file are available as string substitutions within the shell code section.
+file are available as string substitutions within the shell code section. Note that
+specifying `--cores` is required.
 
 ```console
-user@cn1234> snakemake -np 02aln/ERR458502.bam
+user@cn1234> snakemake --cores=4 -np 02aln/ERR458502.bam
+Building DAG of jobs...
+Job stats:
+job       count
+------  -------
+hisat2        1
+total         1
 
+
+[Thu Sep 26 17:13:36 2024]
 rule hisat2:
     input: 00fastq/ERR458502.fastq.gz, 00ref/hisat_index/R64-1-1
     output: 02aln/ERR458502.bam, 02aln/ERR458502.bam.bai
     jobid: 0
+    reason: Missing output files: 02aln/ERR458502.bam
     wildcards: sample=ERR458502
+    resources: tmpdir=/tmp
 
 
-        hisat2 -k 4 -x 00ref/hisat_index/R64-1-1 -U 00fastq/ERR458502.fastq.gz --threads 4 \
-        | samtools sort - T 02aln/ERR458502.bam -O BAM \
-        > 02aln/ERR458502.bam
+        hisat2 -k 4 -x 00ref/hisat_index/R64-1-1 -U 00fastq/ERR458502.fastq.gz --threads 4           | samtools sort -T tmp/ERR458502 -O BAM           > 02aln/ERR458502.bam
         samtools index 02aln/ERR458502.bam
+
+Job stats:
+job       count
+------  -------
+hisat2        1
+total         1
+
+Reasons:
+    (check individual jobs above for details)
+    missing output files:
+        hisat2
+
+This was a dry-run (flag -n). The order of jobs does not reflect the order of execution.
 ```
 
 This can't actually be run yet because hisat and samtools are not
-available on the path. However we can teach snakemake to run a particular
+available on our path. However we can teach snakemake to run a particular
 rule inside a singularity container by making one small change:
 
 ```python
@@ -95,7 +126,7 @@ rule hisat2:
     output: bam = "02aln/{sample}.bam",
             bai = "02aln/{sample}.bam.bai"
     singularity:
-        "library://wresch/classes/rnaseq:0.6"
+        "library://wresch/classes/rnaseq:0.8"
     shell:
         """
         hisat2 -k 4 -x {input.idx} -U {input.fq} --threads 4 \
@@ -108,13 +139,13 @@ rule hisat2:
 By default, snakemake ignores the `singularity` directive. The
 `--use-singularity` option is required to enable use of singularity and the
 `singularity` executable has to be available on the path. Additional
-singularity options can be passed with `--singularity-args`. We will use this
-to pass in bind mount options. Finally, we can store containers in the
-`00container` directory in the root dir of the repo using the
-`--singularity-prefix` option. If `--singularity-prefix` is not specified
-the container is stored in the local `.singularity` directory which may
-be desirable. However, since we use the same container in multiple
-exercises, we store it in a shared location.
+singularity options can be passed with `--singularity-args` and the
+location of pulled containers can be specified with `--singularity-prefix` which
+defaults to `.snakemake/singularity`. We already have the container pulled
+down in `../00container/` so we'll use that instead of creating another copy.
+We are using the environment variable `$SINGULARITY_BINDPATH` so
+for now we don't need `--singularity-args`
+
 
 ```console
 user@cn1234> snakemake --cores 8 --use-singularity 02aln/ERR458502.bam \
@@ -124,29 +155,35 @@ Building DAG of jobs...
 Using shell: /usr/bin/bash
 Provided cores: 8
 Rules claiming more threads will be scaled down.
-Job counts:
-        count   jobs
-        1       hisat2
-        1
+Job stats:
+job       count
+------  -------
+hisat2        1
+total         1
 
-[Fri Feb 12 10:50:27 2021]
+Select jobs to execute...
+
+[Thu Sep 26 17:19:17 2024]
 rule hisat2:
     input: 00fastq/ERR458502.fastq.gz, 00ref/hisat_index/R64-1-1
     output: 02aln/ERR458502.bam, 02aln/ERR458502.bam.bai
     jobid: 0
+    reason: Missing output files: 02aln/ERR458502.bam
     wildcards: sample=ERR458502
+    resources: tmpdir=/tmp
 
-Activating singularity image /spin1/users/user/class_materials/snakemake-class/exercise01/.snakemake/singularity/b891a3a5ef0d77720e876a3540e08ee7.simg
+Activating singularity image /spin1/users/wresch/code/class_materials/snakemake-class/00container/2354d2ff28bcf0b42c57fae398b4c9b5.simg
 1853031 reads; of these:
   1853031 (100.00%) were unpaired; of these:
     49450 (2.67%) aligned 0 times
     1655519 (89.34%) aligned exactly 1 time
     148062 (7.99%) aligned >1 times
 97.33% overall alignment rate
-[Fri Feb 12 10:50:49 2021]
+[Thu Sep 26 17:19:29 2024]
 Finished job 0.
 1 of 1 steps (100%) done
-Complete log: /spin1/users/user/class_materials/snakemake-class/exercise01/.snakemake/log/2021-02-12T105027.048281.snakemake.log
+Complete log: .snakemake/log/2024-09-26T171916.905065.snakemake.log
+
 
 ```
 
@@ -169,9 +206,10 @@ all outputs and their status.
 ```console
 user@cn1234> touch 00fastq/ERR458502.fastq.gz
 user@cn1234> snakemake --summary 02aln/ERR458502.bam
+Building DAG of jobs...
 output_file     date    rule    version log-file(s)     status  plan
-02aln/ERR458502.bam     Fri Feb 12 10:50:49 2021        hisat2  -               updated input files   update pending
-02aln/ERR458502.bam.bai Fri Feb 12 10:50:49 2021        hisat2  -               updated input files   update pending
+02aln/ERR458502.bam     Thu Sep 26 17:19:29 2024        hisat2  -               updated input files     update pending
+02aln/ERR458502.bam.bai Thu Sep 26 17:19:29 2024        hisat2  -               updated input files     update pending
 
 
 user@cn1234> snakemake --cores 8 --use-singularity 02aln/ERR458502.bam \
@@ -186,6 +224,19 @@ Job counts:
         1
 ...
 ```
+
+Since snakemake 7.8 reruns are also triggered if parameters, code, input file
+set, or software stack changed. For example if we make a small change in the 
+hisat2 rule by adding a new empty line we can see that
+
+```console
+user@cn1234> snakemake --summary 02aln/ERR458502.bam
+Building DAG of jobs...
+output_file     date    rule    version log-file(s)     status  plan
+02aln/ERR458502.bam     Thu Sep 26 17:21:58 2024        hisat2  -               rule implementation changed     update pending
+02aln/ERR458502.bam.bai Thu Sep 26 17:21:58 2024        hisat2  -               rule implementation changed     update pending
+```
+
 
 Now let's add a rule for cleaning up all generated files at the end of the
 snakefile.  A rule to clean up generated files should in general not be the

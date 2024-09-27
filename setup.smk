@@ -9,21 +9,17 @@ SAMPLES = ["ERR458495",
            "ERR458880",
            "ERR458887"]
 
-CONTAINER_DIR = "00container"
-CONTAINER_URL = "library://wresch/classes/rnaseq:0.6"
-CONTAINER_NAME = "rnaseq.sif"
 
 ###
 ### main driver rule
 ###
+localrules: setup, clean
+
 rule setup:
-    input: "00container/{}".format(CONTAINER_NAME),
-           "00fastq/ERP004763_sample_table.tsv",
+    input: "00fastq/ERP004763_sample_table.tsv",
            "00fastq/samples.yml",
            expand("00fastq/{sample}.fastq.gz", sample=SAMPLES),
            expand("exercise{n:02d}/config.yml", n=range(4, 7)),
-           "exercise00/rnaseq",
-           "exercise01/rnaseq",
            "00ref/R64-1-1.fa", 
            "00ref/hisat_index/R64-1-1", 
            "00ref/R64-1-1.cdna_nc.fa", 
@@ -34,7 +30,7 @@ rule setup:
            "00ref/chromosomes",
     shell:
         """
-        for ex in exercise*; do
+        for ex in exercise0{{1..6}}; do
             rm -rf $ex/00ref $ex/00fastq
             cp -lr 00ref 00fastq $ex
         done
@@ -43,39 +39,20 @@ rule setup:
 rule clean:
     shell:
         """
-        rm -rf 00ref 00fastq
+        rm -rf 00ref 00fastq logs exercise*/logs
         rm -rf exercise*/00* exercise*/rnaseq exercise*/config.yml
         rm -rf exercise*/02aln exercise*/04count
         rm -rf exercise*/slurm-* exercise*/.snakemake
-        rm -rf exercise06/.cache exercise06/.java exercise06/log.txt
+        rm -rf exercise06/{{.cache,.java,.fontconfig}}
+        rm -rf exercise06/{{01qc,03track,05salmon}}
         """
 
-###
-### exercises and container
-###
-
-rule fetch_container:
-    output: "{0}/{1}".format(CONTAINER_DIR, CONTAINER_NAME)
-    shell: 
-        """
-        module load singularity
-        cd {CONTAINER_DIR}
-        singularity pull {CONTAINER_NAME} {CONTAINER_URL}
-        """
-
-rule wrapper:
-    input: "00container/rnaseq.templ"
-    output: "{ex}/rnaseq"
-    shell: 
-        """
-        img="$(readlink -f $PWD)/{CONTAINER_DIR}/{CONTAINER_NAME}"
-        sed "s:<IMAGEPATH>:${{img}}:" {input} > {output}
-        chmod +x {output}
-        """
 
 ###
 ### data
 ###
+
+localrules: fetch_sample_desc, sample_table, fetch_fastq, config_yml
 
 rule fetch_sample_desc:
     """fetch the sample description table; use local repo if possible"""
@@ -130,7 +107,9 @@ rule config_yml:
 ### reference data
 ###
 
-ENSEMBL_RELEASE = 91
+localrules: fetch_genome, fetch_transcriptome, fetch_gtf, gtf2bed12, make_transcript_gene_map, chroms, ref_yml
+
+ENSEMBL_RELEASE = 112
 ENSEMBL_URL = "ftp://ftp.ensembl.org/pub/release-{}".format(ENSEMBL_RELEASE)
 
 genome_build = "R64-1-1"
@@ -238,7 +217,7 @@ rule chroms:
                 | cut -f1,2 > {output}
         """
 
-rule ref_yaml:
+rule ref_yml:
     output: "00ref/ref.yml"
     shell:
         """
@@ -255,9 +234,10 @@ rule make_hisat_index:
     input:  "00ref/R64-1-1.fa"
     output: idxf1 = "00ref/hisat_index/R64-1-1.1.ht2", 
             name = "00ref/hisat_index/R64-1-1"
-    threads: 2
+    threads: 4
+    resources: mem_mb=24*1024
     singularity:
-        "library://wresch/classes/rnaseq:0.6"
+        "library://wresch/classes/rnaseq:0.8"
     shell:
         """
         hisat2-build -p {threads} {input} {output.name} \

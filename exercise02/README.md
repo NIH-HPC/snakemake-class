@@ -24,7 +24,7 @@ rule hisat2:
             bai = "02aln/{sample}.bam.bai"
     threads: 4
     singularity:
-        "library://wresch/classes/rnaseq:0.6"
+        "library://wresch/classes/rnaseq:0.8"
     shell:
         """
         mkdir -p 02aln
@@ -38,8 +38,7 @@ rule hisat2:
 Now, the workflow can run in parallel:
 
 ```console
-user@cn1234> snakemake --cores 8 --use-singularity --singularity-prefix=../00container \
-    --singularity-args '-B $PWD:/data --pwd /data'
+user@cn1234> snakemake --cores 8 --use-singularity --singularity-prefix=../00container
 ```
 
 ### Resources
@@ -61,7 +60,7 @@ rule hisat2:
     threads: 4
     resources: mem_mb = 6144
     singularity:
-        "library://wresch/classes/rnaseq:0.6"
+        "library://wresch/classes/rnaseq:0.8"
     shell:
         """
         mkdir -p 02aln
@@ -74,11 +73,10 @@ rule hisat2:
 
 Note that there are different ways in which resources such as memory can
 be specified. For example cluster-specific resources could also be specified
-in a separate config file which will be discussed later.
+in a separate config file though that is deprecated.
 
 ```console
 user@cn1234> snakemake --cores 8 --resources mem_mb=12288 --use-singularity \
-    --singularity-args '-B $PWD:/data --pwd /data' \
     --singularity-prefix=../00container
 ```
 
@@ -98,7 +96,7 @@ rule hisat2:
     params: hisat = "-k 4"
     resources: mem_mb = 6144
     singularity:
-        "library://wresch/classes/rnaseq:0.6"
+        "library://wresch/classes/rnaseq:0.8"
     shell:
         """
         mkdir -p 02aln
@@ -119,13 +117,14 @@ name on the command line is search for in `$HOME/.config/snakemake`. Alternative
 profiles can be specified by path. There is a simple profile available in
 this directory which specifies all the required singularity settings so
 we don't have to include them on the command line any more. Note that
-profiles can be used to do much more sophisticated configuration.
+profiles can be used to do much more sophisticated configuration and for
+later exercises we will use the biowulf-specific profile downloaded
+by the setup script.
 
 ```console
 user@cn1234> cat myprofile/config.yaml
 use-singularity: true
 singularity-prefix: ../00container
-singularity-args: '-B $PWD:/data --pwd /data'
 
 user@cn1234> snakemake --cores 8 --profile ./myprofile
 ```

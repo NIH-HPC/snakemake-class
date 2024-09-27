@@ -1,16 +1,16 @@
-BootStrap: docker
-From: centos:7
+BootStrap: library
+From: hpc-staff/base-images/rocky8
 
+################################################################################
 %labels
-CONTAINER_VERSION=0.5
+CONTAINER_VERSION=0.8
 
 ################################################################################
 %post
-################################################################################
 
 # basic packages
-yum update -y
-yum install -y zip wget bzip2 which vim-minimal
+dnf update -y
+dnf install -y zip wget bzip2 tar
 
 # conda installation
 mkdir -p /opt
@@ -18,20 +18,19 @@ cd /opt
 wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda
 . /opt/conda/etc/profile.d/conda.sh
-conda update --all --yes --quiet -n base
-conda install --yes -c conda-forge mamba
+
 
 # conda environment
-mamba create -n rnaseq
+conda create -y -n rnaseq
 conda activate rnaseq
 conda config --env --set channel_priority strict
 conda config --env --add channels bioconda
 conda config --env --add channels conda-forge
-mamba install -qy \
-  samtools=1.10 \
-  bcftools=1.10 \
+conda install -qy \
+  samtools=1.17 \
+  bcftools=1.17 \
   fastqc=0.11.9 \
-  rseqc=3.0.1 \
+  rseqc=5.0.1 \
   stringtie=2.1.4 \
   trimmomatic=0.39 \
   hisat2=2.2.1 \
@@ -56,14 +55,14 @@ printf 'PATH="${PATH}:/opt/conda/envs/rnaseq/bin"\n' >> $SINGULARITY_ENVIRONMENT
 ### install salmon, and subread from binary packages
 ###
 
-sver=1.4.0
+sver=1.10.0
 wget --quiet https://github.com/COMBINE-lab/salmon/releases/download/v${sver}/salmon-${sver}_linux_x86_64.tar.gz
 mkdir -p salmon/${sver}
 tar -xzf salmon-${sver}_linux_x86_64.tar.gz -C salmon/${sver} --strip-components=1
 printf 'PATH="/opt/salmon/%s/bin:${PATH}"\n' $sver >> $SINGULARITY_ENVIRONMENT
 rm -f salmon-${sver}_linux_x86_64.tar.gz
 
-rver=2.0.1
+rver=2.0.6
 wget --quiet -O subread-${rver}-Linux-x86_64.tar.gz \
   https://sourceforge.net/projects/subread/files/subread-${rver}/subread-${rver}-Linux-x86_64.tar.gz/download
 mkdir -p subread/${rver}
@@ -71,23 +70,20 @@ tar -xzf subread-${rver}-Linux-x86_64.tar.gz -C subread/${rver} --strip-componen
 printf 'PATH="/opt/subread/%s/bin:${PATH}"\n' $rver >> $SINGULARITY_ENVIRONMENT
 rm -f subread-${rver}-Linux-x86_64.tar.gz
 
-# create generic mount points for the workflow
-mkdir /data /resources
 
 # clean up so image can be shrunk
 conda clean -pt --yes
-yum clean all
+dnf clean all
 
 # set up the environment for the container
 ################################################################################
 %environment
-################################################################################
+
 export PS1="Singularity.$SINGULARITY_CONTAINER> $PS1"
 export LANG=en_US.UTF-8
 
 ################################################################################
 %runscript
-################################################################################
 
 # In this case using the runscript only for self documentation.
 
